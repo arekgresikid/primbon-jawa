@@ -1,0 +1,31 @@
+name: Generate Mystical Story
+
+on:
+  schedule:
+    - cron: '0 2 */3 * *' # Every 3 days at 09:00 AM WIB (02:00 AM UTC)
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate story
+        env:
+          POLLINATION_API_KEY: ${{ secrets.POLLINATION_API_KEY }}
+        run: node scripts/generate-story.cjs
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add src/data/stories.json
+          git commit -m "chore: auto-generate new mystical story" || echo "No changes to commit"
+          git push

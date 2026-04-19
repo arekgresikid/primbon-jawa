@@ -7,8 +7,8 @@ interface SEOProps {
 }
 
 export function SEO({ 
-  title = "Primbon Jawa Modern - Weton, Ramalan & Sesepuh AI", 
-  description = "Aplikasi Primbon Jawa Modern paling akurat. Cek Weton, Ramalan Nasib, Kecocokan Jodoh, dan Konsultasi dengan Sesepuh AI secara interaktif.",
+  title = "Primbon Jawa Modern | Kalender & Weton Digital", 
+  description = "Aplikasi Primbon Jawa modern dengan kalender Jawa, hitung weton, konverter aksara, dan ramalan AI.",
   keywords = "primbon jawa, cek weton, ramalan jodoh, kalender jawa, penanggalan jawa, sesepuh ai, bot primbon"
 }: SEOProps) {
   useEffect(() => {
@@ -44,10 +44,12 @@ export function SEO({
       el.setAttribute('content', content);
     };
 
+    const BASE_URL = 'https://jawidigital.my.id';
+
     updateOG('og:title', title);
     updateOG('og:description', description);
     updateOG('og:type', 'website');
-    updateOG('og:image', '/og-image.png');
+    updateOG('og:image', `${BASE_URL}/og-image.png`);
 
     // Update Twitter Tags
     const updateTwitter = (name: string, content: string) => {
@@ -63,7 +65,7 @@ export function SEO({
     updateTwitter('twitter:card', 'summary_large_image');
     updateTwitter('twitter:title', title);
     updateTwitter('twitter:description', description);
-    updateTwitter('twitter:image', '/og-image.png');
+    updateTwitter('twitter:image', `${BASE_URL}/og-image.png`);
 
   }, [title, description, keywords]);
 

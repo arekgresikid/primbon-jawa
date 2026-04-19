@@ -1,12 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import html2canvas from 'html2canvas';
 import { getWeton, getWatak, getJodoh, getRamalanNasib, getArahRezeki, getWarnaKeberuntungan, getStrategiBisnis, getDailyLuck, getCharacterScores, getAuspiciousHours } from '../lib/jawaMath';
 import { cn } from '../lib/utils';
-import { Heart, Search, User, Flame, Sparkles, Compass, Palette, Briefcase, TrendingUp, AlertTriangle, Info, Zap, Clock } from 'lucide-react';
+import { Heart, Search, User, Flame, Sparkles, Compass, Palette, Briefcase, TrendingUp, AlertTriangle, Info, Zap, Clock, Share2, Download, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { RadarChart } from './RadarChart';
 import { FortuneCompass } from './FortuneCompass';
 
 export function WetonCalc() {
+  const cardRef = useRef<HTMLElement>(null);
+  const [isCapturing, setIsCapturing] = useState(false);
+  const [captureStatus, setCaptureStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [tab, setTab] = useState<'pribadi' | 'bisnis' | 'jodoh'>('pribadi');
   const [date1, setDate1] = useState('');
   const [date2, setDate2] = useState('');
@@ -20,6 +24,38 @@ export function WetonCalc() {
       return () => clearTimeout(timer);
     }
   }, [showLoveMeter]);
+
+  const handleCapture = async () => {
+    if (!cardRef.current) return;
+    setIsCapturing(true);
+    setCaptureStatus('idle');
+
+    try {
+      // Small delay to ensure any animations finish
+      await new Promise(r => setTimeout(r, 100));
+      
+      const canvas = await html2canvas(cardRef.current, {
+        scale: 2, // High resolution
+        useCORS: true,
+        backgroundColor: null,
+        logging: false,
+      });
+
+      const image = canvas.toDataURL('image/png', 1.0);
+      const link = document.createElement('a');
+      link.download = `Weton-Jawa-${date1}.png`;
+      link.href = image;
+      link.click();
+      
+      setCaptureStatus('success');
+      setTimeout(() => setCaptureStatus('idle'), 3000);
+    } catch (err) {
+      console.error('Capture failed:', err);
+      setCaptureStatus('error');
+    } finally {
+      setIsCapturing(false);
+    }
+  };
 
   const renderPribadi = () => {
     let result = null;
@@ -89,15 +125,46 @@ export function WetonCalc() {
               </section>
 
               {/* Main Result Card */}
-              <article className="bg-white/80 dark:bg-stone-900/40 border border-gold-200 dark:border-gold-600/30 overflow-hidden rounded-2xl backdrop-blur-sm shadow-md">
-                <div className="p-6 text-center border-b border-gold-200 dark:border-gold-600/20 bg-gradient-to-b from-gold-50 dark:from-gold-500/10 to-transparent">
-                  <p className="text-stone-500 dark:text-stone-400 text-sm mb-1 uppercase tracking-widest font-medium">Weton Lahir</p>
-                  <h3 className="text-3xl font-bold text-gold-600 dark:text-gold-500 mb-2">
+              <article 
+                ref={cardRef}
+                className="bg-white dark:bg-stone-900 border border-gold-200 dark:border-gold-600/30 overflow-hidden rounded-2xl backdrop-blur-sm shadow-md"
+              >
+                <div className="p-6 text-center border-b border-gold-200 dark:border-gold-600/20 bg-gradient-to-b from-gold-50 dark:from-gold-500/10 to-transparent relative">
+                  {/* Share button (Float) */}
+                  <button 
+                    onClick={handleCapture}
+                    disabled={isCapturing}
+                    className={cn(
+                      "absolute right-4 top-4 p-2.5 rounded-full transition-all duration-300 shadow-sm border",
+                      captureStatus === 'success' 
+                        ? "bg-green-500 border-green-400 text-white" 
+                        : "bg-white dark:bg-stone-800 border-stone-200 dark:border-stone-700 text-gold-600 dark:text-gold-400 hover:scale-110 active:scale-95"
+                    )}
+                    title="Simpan sebagai Gambar"
+                  >
+                    {isCapturing ? <div className="w-5 h-5 border-2 border-gold-500/30 border-t-gold-500 rounded-full animate-spin" /> : 
+                     captureStatus === 'success' ? <Check size={20} /> : <Download size={20} />}
+                  </button>
+
+                  <p className="text-stone-500 dark:text-stone-400 text-xs mb-1 uppercase tracking-widest font-bold">Weton Lahir Ananda</p>
+                  <h3 className="text-3xl font-black text-gold-600 dark:text-gold-500 mb-2 drop-shadow-sm">
                     {result.weton.dina} {result.weton.pasaran}
                   </h3>
-                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-white dark:bg-stone-950 rounded-full border border-stone-200 dark:border-stone-800 shadow-sm">
-                    <span className="text-stone-600 dark:text-stone-300 text-sm">Wuku:</span>
-                    <span className="text-gold-600 dark:text-gold-500 font-medium">{result.weton.wuku}</span>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/50 dark:bg-stone-950/50 rounded-full border border-gold-100 dark:border-gold-900/30 shadow-sm">
+                    <span className="text-stone-500 dark:text-stone-400 text-[10px] font-bold uppercase">Wuku:</span>
+                    <span className="text-gold-600 dark:text-gold-500 font-bold text-sm">{result.weton.wuku}</span>
+                  </div>
+
+                  <div className="mt-4 flex justify-center gap-4 text-[10px] font-bold uppercase tracking-tighter text-stone-400">
+                    <div className="flex flex-col">
+                      <span>Neptu</span>
+                      <span className="text-lg text-stone-700 dark:text-stone-300">{result.weton.neptu}</span>
+                    </div>
+                    <div className="w-px h-8 bg-stone-200 dark:bg-stone-800 my-auto" />
+                    <div className="flex flex-col">
+                      <span>Pranata Mangsa</span>
+                      <span className="text-lg text-stone-700 dark:text-stone-300">{result.weton.mangsa || 'Kapat'}</span>
+                    </div>
                   </div>
                 </div>
                 <div className="p-6 grid gap-6">
@@ -146,7 +213,7 @@ export function WetonCalc() {
                           </div>
                         </div>
                         <div className="shrink-0 scale-75 sm:scale-100 -my-4">
-                          <FortuneCompass luckyDirections={result.arah} />
+                          <FortuneCompass />
                         </div>
                       </div>
                       <div className="flex gap-4">

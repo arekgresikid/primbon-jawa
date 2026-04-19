@@ -158,11 +158,22 @@ export function getWarnaKeberuntungan(neptu: number) {
   const warnaMap = [
     'Putih & Kuning (Membawa ketenangan dan aura positif)',
     'Merah Muda & Hijau (Menarik simpati dan keharmonisan)',
-    'Hitam & Biru Tua (Meningkatkan kewibawaan dan perlindungan)',
-    'Emas & Coklat (Melambangkan kemakmuran dan kestabilan)',
-    'Merah & Jingga (Memicu semangat, hoki, dan keberanian)'
+    'Biru & Hitam (Ketajaman pikiran dan keberanian)',
+    'Emas & Putih (Kewibawaan dan kesucian)',
+    'Hijau & Cokelat (Kesuburan dan keteguhan)'
   ];
   return warnaMap[neptu % 5];
+}
+
+export function getLuckyColorByPasaran(pasaran: string) {
+  const colors: Record<string, string> = {
+    'Legi': 'Putih (Ketulusan & Kejernihan)',
+    'Pahing': 'Merah (Semangat & Keberanian)',
+    'Pon': 'Kuning (Kewibawaan & Kebahagiaan)',
+    'Wage': 'Hitam (Kemantapan & Kedalaman)',
+    'Kliwon': 'Abu-abu / Mancawarna (Keseimbangan & Keluwesan)'
+  };
+  return colors[pasaran] || 'Putih';
 }
 
 export function getJodoh(neptu1: number, neptu2: number) {
