@@ -3,24 +3,60 @@ import { Calendar } from './components/Calendar';
 import { WetonCalc } from './components/WetonCalc';
 import { AksaraConverter } from './components/AksaraConverter';
 import { KonsultasiAI } from './components/KonsultasiAI';
-import { CalendarDays, BookOpen, Quote, Moon, Sun, Feather } from 'lucide-react';
+import { JawaEvents } from './components/JawaEvents';
+import { SEO } from './components/SEO';
+import { CalendarDays, BookOpen, Quote, Moon, Sun, Feather, Star, MessageSquare } from 'lucide-react';
 import { cn } from './lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'calendar' | 'weton' | 'aksara' | 'ai'>('calendar');
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [activeTab, setActiveTab] = useState<'calendar' | 'weton' | 'aksara' | 'ai' | 'acara'>('calendar');
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('primbon-theme');
+      if (saved) return saved === 'dark';
+      return true; // Default ke dark
+    }
+    return true;
+  });
 
   useEffect(() => {
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
+      localStorage.setItem('primbon-theme', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
+      localStorage.setItem('primbon-theme', 'light');
     }
   }, [isDarkMode]);
 
   return (
-    <div className="min-h-[100dvh] flex flex-col font-sans w-full overflow-x-hidden relative">
+    <div className="min-h-[100dvh] flex flex-col font-sans w-full overflow-x-hidden relative bg-stone-50 dark:bg-stone-950 transition-colors">
+      <SEO />
+      {/* Mystical Background Particles */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        {[...Array(6)].map((_, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: Math.random() * 100 + "%" }}
+            animate={{ 
+              opacity: [0, 0.15, 0],
+              y: ["100%", "-20%"],
+              x: ["0%", (Math.random() - 0.5) * 50 + "%"]
+            }}
+            transition={{ 
+              duration: 10 + Math.random() * 20, 
+              repeat: Infinity, 
+              delay: i * 5,
+              ease: "linear"
+            }}
+            className="absolute w-1 h-1 bg-gold-400 dark:bg-gold-500 rounded-full blur-[2px]"
+            style={{ left: Math.random() * 100 + "%" }}
+          />
+        ))}
+      </div>
+
+      <div className="relative z-10 flex-1 flex flex-col">
       {/* App Header */}
       <header className="sticky top-0 z-40 bg-stone-100/90 dark:bg-stone-950/80 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 pt-4 pb-3 px-4 shadow-sm text-center transition-colors">
          <h1 className="text-xl font-bold text-stone-900 dark:text-stone-100 tracking-tight flex justify-center items-center gap-2">
@@ -60,6 +96,11 @@ export default function App() {
               <KonsultasiAI />
             </motion.div>
           )}
+          {activeTab === 'acara' && (
+            <motion.div className="flex-1 flex flex-col" key="acara" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
+              <JawaEvents onConsult={() => setActiveTab('ai')} />
+            </motion.div>
+          )}
         </AnimatePresence>
       </main>
 
@@ -84,6 +125,15 @@ export default function App() {
               <span className="text-[10px] font-medium tracking-wide">Wetonku</span>
             </button>
             
+            {/* Konsultasi AI */}
+            <button 
+              onClick={() => setActiveTab('ai')}
+              className={cn("flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors px-1", activeTab === 'ai' ? "text-gold-500 font-bold" : "text-stone-500 hover:text-stone-800 dark:hover:text-stone-300")}
+            >
+              <MessageSquare size={20} strokeWidth={activeTab === 'ai' ? 2.5 : 2} className={activeTab === 'ai' ? "drop-shadow-[0_0_8px_rgba(212,163,115,0.4)]" : ""} />
+              <span className="text-[10px] font-medium tracking-wide">Konsultasi</span>
+            </button>
+
             {/* Aksara */}
             <button 
               onClick={() => setActiveTab('aksara')}
@@ -93,15 +143,16 @@ export default function App() {
               <span className="text-[10px] font-medium tracking-wide">Aksara</span>
             </button>
 
-            {/* AI Sesepuh */}
+            {/* Acara */}
             <button 
-              onClick={() => setActiveTab('ai')}
-              className={cn("flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors px-1", activeTab === 'ai' ? "text-gold-500" : "text-stone-500 hover:text-stone-800 dark:hover:text-stone-300")}
+              onClick={() => setActiveTab('acara')}
+              className={cn("flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors px-1", activeTab === 'acara' ? "text-gold-500" : "text-stone-500 hover:text-stone-800 dark:hover:text-stone-300")}
             >
-              <Feather size={20} strokeWidth={activeTab === 'ai' ? 2.5 : 2} />
-              <span className="text-[10px] font-medium tracking-wide">Tanya AI</span>
+              <Star size={20} strokeWidth={activeTab === 'acara' ? 2.5 : 2} />
+              <span className="text-[10px] font-medium tracking-wide">Acara</span>
             </button>
-         </div>
+          </div>
+        </div>
       </div>
     </div>
   );

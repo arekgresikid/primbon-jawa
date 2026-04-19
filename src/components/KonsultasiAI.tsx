@@ -2,10 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, UserCircle, MessageSquare, Loader2, Feather, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
-import { GoogleGenAI } from '@google/genai';
 import Markdown from 'react-markdown';
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 interface ChatMessage {
   id: string;
@@ -23,7 +20,30 @@ export function KonsultasiAI() {
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("Sesepuh sedang bersemedi...");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const mysticalMessages = [
+    "Sesepuh sedang bersemedi...",
+    "Merasakan getaran ghaib...",
+    "Membuka tabir masa depan...",
+    "Menghitung siklus neptu...",
+    "Mendengar bisikan semesta...",
+    "Menyelaraskan energi batin..."
+  ];
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isLoading) {
+      let index = 0;
+      setLoadingMessage(mysticalMessages[0]);
+      interval = setInterval(() => {
+        index = (index + 1) % mysticalMessages.length;
+        setLoadingMessage(mysticalMessages[index]);
+      }, 3000);
+    }
+    return () => clearInterval(interval);
+  }, [isLoading]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -53,26 +73,49 @@ export function KonsultasiAI() {
     setIsLoading(true);
 
     try {
-      const systemInstruction = `Kamu adalah pakar Primbon Jawa, Weton, watak, kecocokan jodoh, dan penanggalan Jawa.
-Jawablah pertanyaan pengguna dengan santun dan ramah menggunakan Bahasa Indonesia yang baik dan benar. DILARANG menggunakan bahasa Jawa.
-Berikan penjelasan berdasarkan ilmu Primbon. Selalu akhiri dengan pesan spiritual atau nasehat kebaikan universal.`;
+      const systemInstruction = `Kamu adalah Sesepuh Primbon Jawa yang bijaksana. 
+Panggil pengguna dengan sebutan "Cucu" atau "Ananda". 
+Gunakan gaya bahasa seorang kakek/sesepuh yang tenang dan penuh hikmat.
+Tugasmu: Menjawab pertanyaan tentang Weton, Watak, Jodoh, dan Kalender Jawa.
+Jika ditanya tentang weton tetapi mataharinya (tanggal lahir) belum ada, mintalah tanggal lahirnya dengan sopan.
+DILARANG menjawab hal di luar budaya/mistis Jawa.
+Selalu berikan nasehat spiritual Jawa yang menenangkan.`;
 
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: [
-          ...messages.slice(1).map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.text }] })),
-          { role: 'user', parts: [{ text: userMessage.text }] }
-        ],
-        config: {
+      const response = await fetch("/api/custom-service", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          messages: messages.map(m => ({ 
+            role: m.role, 
+            content: m.text 
+          })),
           systemInstruction,
-          temperature: 0.7,
-        }
+          userMessage: userMessage.text
+        })
       });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Gagal menghubungi Sesepuh AI.");
+      }
+
+      const data = await response.json();
+      let replyText = data.reply || "Sesepuh sedang diam seribu bahasa...";
+
+      // Pembersihan ganda jika masih ada JSON yang tersisa
+      if (typeof replyText === 'string' && replyText.trim().startsWith('{')) {
+        try {
+          const parsed = JSON.parse(replyText);
+          replyText = parsed.choices?.[0]?.message?.content || parsed.content || replyText;
+        } catch (e) {}
+      }
 
       const assistantMessage: ChatMessage = { 
         id: (Date.now() + 1).toString(), 
         role: "assistant", 
-        text: response.text || "Mohon maaf, pesan tidak dapat diproses." 
+        text: replyText
       };
       
       setMessages(prev => [...prev, assistantMessage]);
@@ -90,10 +133,10 @@ Berikan penjelasan berdasarkan ilmu Primbon. Selalu akhiri dengan pesan spiritua
   };
 
   return (
-    <div className="w-full flex-1 flex flex-col relative h-[100dvh]">
+    <div className="w-full flex-1 flex flex-col relative">
        {/* Main scrollable chat area */}
-       <div className="flex-1 overflow-y-auto px-4 sm:px-6 pt-6 pb-28 w-full flex flex-col items-center">
-         <div className="w-full max-w-3xl">
+        <section className="flex-1 overflow-y-auto px-4 sm:px-6 pt-6 pb-40 w-full flex flex-col items-center">
+          <div className="w-full max-w-3xl">
            <div className="mb-8 text-center shrink-0">
              <h2 className="text-2xl sm:text-3xl font-bold text-stone-900 dark:text-stone-100 flex items-center justify-center gap-3">
                <Feather size={28} className="text-gold-500" />
@@ -145,16 +188,23 @@ Berikan penjelasan berdasarkan ilmu Primbon. Selalu akhiri dengan pesan spiritua
                 </motion.div>
               ))}
               {isLoading && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-start max-w-[80%] mr-auto">
-                  <div className="p-4 rounded-2xl bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-tl-sm shadow-sm">
-                    <Loader2 size={20} className="text-gold-500 animate-spin" />
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col max-w-[80%] mr-auto items-start">
+                  <div className="flex items-center gap-1.5 text-gold-600/60 text-[10px] font-bold tracking-widest uppercase mb-1 px-1">
+                    <Loader2 size={10} className="animate-spin" /> {loadingMessage}
+                  </div>
+                  <div className="p-4 rounded-2xl bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-tl-sm shadow-sm font-sans">
+                    <div className="flex gap-1">
+                      <motion.span animate={{ opacity: [0, 1, 0] }} transition={{ repeat: Infinity, duration: 1 }} className="w-1.5 h-1.5 bg-gold-400 rounded-full" />
+                      <motion.span animate={{ opacity: [0, 1, 0] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-1.5 h-1.5 bg-gold-400 rounded-full" />
+                      <motion.span animate={{ opacity: [0, 1, 0] }} transition={{ repeat: Infinity, duration: 1, delay: 0.4 }} className="w-1.5 h-1.5 bg-gold-400 rounded-full" />
+                    </div>
                   </div>
                 </motion.div>
               )}
               <div ref={messagesEndRef} className="h-4" />
            </div>
-         </div>
-       </div>
+          </div>
+        </section>
 
        {/* Fixed Input Area (Lebar Penuh) */}
        <div className="fixed bottom-16 left-0 right-0 w-full bg-stone-100/95 dark:bg-stone-950/95 backdrop-blur-md border-t border-stone-200 dark:border-stone-800 px-4 py-3 sm:px-6 z-40 shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.1)]">

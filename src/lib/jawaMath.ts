@@ -220,3 +220,99 @@ export function getStrategiBisnis(neptu: number, dina: string, pasaran: string) 
     kekurangan: kekuranganMap[neptu % 5]
   };
 }
+
+export function getDailyLuck(userNeptu: number, todayNeptu: number) {
+  // Simple algorithm to calculate luck compatibility
+  const combinations = (userNeptu + todayNeptu) % 10;
+  const scores = [65, 80, 45, 90, 70, 55, 85, 40, 95, 60];
+  const advices = [
+    'Hari yang stabil, bagus untuk perencanaan.',
+    'Energi Anda sedang tinggi, manfaatkan untuk hal produktif.',
+    'Kurangi risiko hari ini, lebih baik berhemat.',
+    'Luar biasa! Peluang besar menanti Anda.',
+    'Hubungan sosial Anda sedang harmonis.',
+    'Waspadai kesalahpahaman kecil dengan orang terdekat.',
+    'Rezeki kecil mengalir, tetaplah bersyukur.',
+    'Butuh istirahat lebih, jangan terlalu memaksakan diri.',
+    'Magnet keberuntungan! Hari yang tepat untuk berdagang.',
+    'Fokus pada detail, jangan terburu-buru mengambil keputusan.'
+  ];
+  
+  return {
+    score: scores[combinations],
+    advice: advices[combinations]
+  };
+}
+
+export function getAuspiciousHours(dinaIndex: number) {
+  // Javanese Saat (Time Periods) logic simplification
+  // Every day has 5 cycles (Saat 1-5) from sunrise to sunset
+  const saatNames = ['Saat Slamet', 'Saat Rejeki', 'Saat Pacakulu', 'Saat Kolo', 'Saat Gedhong'];
+  const saatDesc = [
+    'Sangat baik untuk perjalanan & keamanan.',
+    'Terbaik untuk dagang & mencari keuntungan.',
+    'Baik untuk silaturahmi & perundingan.',
+    'Hati-hati, waspada terhadap konflik/halangan.',
+    'Mulia untuk memulai urusan besar/kedudukan.'
+  ];
+  
+  // Rotating based on day of week
+  const order = [
+    [0, 1, 2, 3, 4], // Sun
+    [1, 2, 3, 4, 0], // Mon
+    [4, 0, 1, 2, 3], // Tue
+    [3, 4, 0, 1, 2], // Wed
+    [2, 3, 4, 0, 1], // Thu
+    [1, 2, 3, 4, 0], // Fri
+    [0, 1, 2, 3, 4]  // Sat
+  ];
+  
+  const blocks = [
+    { time: '06:00 - 08:24' },
+    { time: '08:24 - 10:48' },
+    { time: '10:48 - 13:12' },
+    { time: '13:12 - 15:36' },
+    { time: '15:36 - 18:00' }
+  ];
+  
+  return blocks.map((b, i) => {
+    const idx = order[dinaIndex][i];
+    return {
+      ...b,
+      name: saatNames[idx],
+      desc: saatDesc[idx],
+      status: idx === 3 ? 'warning' : idx === 1 || idx === 4 ? 'good' : 'neutral'
+    };
+  });
+}
+
+export function getCharacterScores(neptu: number) {
+  // Map neptu to 5 radar dimensions (0-100 scale)
+  const base = neptu / 18;
+  return [
+    { label: 'Kepemimpinan', value: Math.min(100, Math.round(base * 95 + (neptu % 3) * 5)) },
+    { label: 'Rezeki', value: Math.min(100, Math.round(base * 85 + (neptu % 5) * 4)) },
+    { label: 'Sosial', value: Math.min(100, Math.round(base * 90 + (neptu % 2) * 10)) },
+    { label: 'Spiritual', value: Math.min(100, Math.round(base * 80 + (neptu % 4) * 6)) },
+    { label: 'Kesehatan', value: Math.min(100, Math.round(base * 75 + (neptu % 7) * 4)) }
+  ];
+}
+
+export function getJavaneseEvents(year: number) {
+  // Approximate major Javanese/Islamic-Javanese events
+  // Note: For real world apps, these should come from an API or a lunar library
+  const events = [
+    { name: '1 Suro (Tahun Baru Jawa)', month: 0, day: 7, desc: 'Awal bulan pertama dalam kalender Jawa. Waktu untuk melakukan tirakatan, kirab pusaka, dan mubeng beteng bagi masyarakat Jawa sebagai bentuk introspeksi diri.' },
+    { name: 'Sekaten (Maulid Nabi)', month: 8, day: 16, desc: 'Rangkaian kegiatan tahunan memperingati hari lahir Nabi Muhammad. Identik dengan pasar malam, gamelan Sekaten, dan prosesi Gunungan.' },
+    { name: 'Hari Jadi Weton Anda', type: 'dynamic', desc: 'Momen sakral kembalinya hari lahir Anda dalam siklus 35 hari (Selapan). Waktu yang baik untuk bersyukur dan melakukan meditasi.' }
+  ];
+  
+  // Adjust for 2024 specifically for 1 Suro
+  if (year === 2024) events[0].day = 7;
+  if (year === 2025) {
+     events[0].day = 27;
+     events[0].month = 5; // June
+  }
+
+  return events;
+}

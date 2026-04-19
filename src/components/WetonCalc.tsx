@@ -1,25 +1,46 @@
-import React, { useState } from 'react';
-import { getWeton, getWatak, getJodoh, getRamalanNasib, getArahRezeki, getWarnaKeberuntungan, getStrategiBisnis } from '../lib/jawaMath';
+import React, { useState, useEffect } from 'react';
+import { getWeton, getWatak, getJodoh, getRamalanNasib, getArahRezeki, getWarnaKeberuntungan, getStrategiBisnis, getDailyLuck, getCharacterScores, getAuspiciousHours } from '../lib/jawaMath';
 import { cn } from '../lib/utils';
-import { Heart, Search, User, Flame, Sparkles, Compass, Palette, Briefcase, TrendingUp, AlertTriangle, Info } from 'lucide-react';
+import { Heart, Search, User, Flame, Sparkles, Compass, Palette, Briefcase, TrendingUp, AlertTriangle, Info, Zap, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { RadarChart } from './RadarChart';
+import { FortuneCompass } from './FortuneCompass';
 
 export function WetonCalc() {
   const [tab, setTab] = useState<'pribadi' | 'bisnis' | 'jodoh'>('pribadi');
   const [date1, setDate1] = useState('');
   const [date2, setDate2] = useState('');
+  const [showLoveMeter, setShowLoveMeter] = useState(false);
+  const [loveProgress, setLoveProgress] = useState(0);
+
+  useEffect(() => {
+    if (showLoveMeter) {
+      setLoveProgress(0);
+      const timer = setTimeout(() => setLoveProgress(100), 100);
+      return () => clearTimeout(timer);
+    }
+  }, [showLoveMeter]);
 
   const renderPribadi = () => {
     let result = null;
+    let dailyLuck = null;
+    let charScores = null;
+    let hours = null;
+
     if (date1) {
       const d = new Date(date1);
       if (!isNaN(d.getTime())) {
         const weton = getWeton(d);
+        const todayWeton = getWeton(new Date());
         const watak = getWatak(weton.neptu);
         const nasib = getRamalanNasib(weton.neptu);
         const arah = getArahRezeki(weton.neptu);
         const warna = getWarnaKeberuntungan(weton.neptu);
+        
         result = { weton, watak, nasib, arah, warna };
+        dailyLuck = getDailyLuck(weton.neptu, todayWeton.neptu);
+        charScores = getCharacterScores(weton.neptu);
+        hours = getAuspiciousHours(new Date().getDay());
       }
     }
 
@@ -36,77 +57,133 @@ export function WetonCalc() {
         </div>
 
         <AnimatePresence>
-          {result && (
+          {result && dailyLuck && charScores && hours && (
             <motion.div 
               initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-              className="bg-white/80 dark:bg-stone-900/40 border border-gold-200 dark:border-gold-600/30 overflow-hidden rounded-2xl backdrop-blur-sm shadow-md"
+              className="space-y-6"
             >
-              <div className="p-6 text-center border-b border-gold-200 dark:border-gold-600/20 bg-gradient-to-b from-gold-50 dark:from-gold-500/10 to-transparent">
-                <p className="text-stone-500 dark:text-stone-400 text-sm mb-1 uppercase tracking-widest font-medium">Weton Lahir</p>
-                <h3 className="text-3xl font-bold text-gold-600 dark:text-gold-500 mb-2">
-                  {result.weton.dina} {result.weton.pasaran}
-                </h3>
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-white dark:bg-stone-950 rounded-full border border-stone-200 dark:border-stone-800 shadow-sm">
-                  <span className="text-stone-600 dark:text-stone-300 text-sm">Wuku:</span>
-                  <span className="text-gold-600 dark:text-gold-500 font-medium">{result.weton.wuku}</span>
-                </div>
-              </div>
-              <div className="p-6 grid gap-6">
-                <div className="flex gap-4">
-                  <div className="w-12 h-12 rounded-full bg-stone-50 dark:bg-stone-950 flex items-center justify-center border border-stone-200 dark:border-stone-800 text-gold-600 dark:text-gold-500 shrink-0 shadow-sm">
-                    <User size={20} />
-                  </div>
-                  <div>
-                    <h4 className="text-stone-800 dark:text-stone-300 font-semibold mb-1">Total Neptu: {result.weton.neptu}</h4>
-                    <p className="text-sm text-stone-500 dark:text-stone-400 leading-relaxed font-mono">({result.weton.dinaNeptu} untuk {result.weton.dina} + {result.weton.pasaranNeptu} untuk {result.weton.pasaran})</p>
+              {/* Daily Fortune Card */}
+              <article className="bg-gradient-to-br from-gold-500 to-amber-600 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+                <div className="absolute -right-4 -top-4 opacity-20"><Zap size={100} /></div>
+                <div className="relative z-10">
+                  <header className="flex justify-between items-center mb-4">
+                    <h4 className="text-xs font-bold uppercase tracking-widest bg-white/20 px-2 py-1 rounded">Keberuntungan Hari Ini</h4>
+                    <span className="text-2xl font-black">{dailyLuck.score}%</span>
+                  </header>
+                  <p className="text-lg font-medium leading-tight mb-2">"{dailyLuck.advice}"</p>
+                  <div className="w-full bg-white/20 h-1.5 rounded-full overflow-hidden" role="progressbar" aria-valuenow={dailyLuck.score} aria-valuemin={0} aria-valuemax={100}>
+                    <motion.div 
+                      initial={{ width: 0 }} 
+                      animate={{ width: `${dailyLuck.score}%` }} 
+                      transition={{ duration: 1, delay: 0.5 }}
+                      className="bg-white h-full" 
+                    />
                   </div>
                 </div>
-                
-                <div className="flex gap-4">
-                  <div className="w-12 h-12 rounded-full bg-stone-50 dark:bg-stone-950 flex items-center justify-center border border-stone-200 dark:border-gold-600/30 text-gold-500 dark:text-gold-400 shrink-0 shadow-sm">
-                    <Flame size={20} />
+              </article>
+
+              {/* Character Radar */}
+              <section className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl p-6 shadow-sm">
+                <h4 className="text-center text-sm font-bold text-stone-500 uppercase tracking-widest mb-6">Analisis Karakter Neptu</h4>
+                <RadarChart data={charScores} />
+              </section>
+
+              {/* Main Result Card */}
+              <article className="bg-white/80 dark:bg-stone-900/40 border border-gold-200 dark:border-gold-600/30 overflow-hidden rounded-2xl backdrop-blur-sm shadow-md">
+                <div className="p-6 text-center border-b border-gold-200 dark:border-gold-600/20 bg-gradient-to-b from-gold-50 dark:from-gold-500/10 to-transparent">
+                  <p className="text-stone-500 dark:text-stone-400 text-sm mb-1 uppercase tracking-widest font-medium">Weton Lahir</p>
+                  <h3 className="text-3xl font-bold text-gold-600 dark:text-gold-500 mb-2">
+                    {result.weton.dina} {result.weton.pasaran}
+                  </h3>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-white dark:bg-stone-950 rounded-full border border-stone-200 dark:border-stone-800 shadow-sm">
+                    <span className="text-stone-600 dark:text-stone-300 text-sm">Wuku:</span>
+                    <span className="text-gold-600 dark:text-gold-500 font-medium">{result.weton.wuku}</span>
                   </div>
-                  <div>
-                    <h4 className="text-stone-800 dark:text-stone-300 font-semibold mb-1">Watak Dominan</h4>
-                    <p className="text-sm text-stone-600 dark:text-stone-400 leading-relaxed">{result.watak}</p>
+                </div>
+                <div className="p-6 grid gap-6">
+                  <div className="flex gap-4">
+                    <div className="w-12 h-12 rounded-full bg-stone-50 dark:bg-stone-950 flex items-center justify-center border border-stone-200 dark:border-stone-800 text-gold-600 dark:text-gold-500 shrink-0 shadow-sm">
+                      <User size={20} />
+                    </div>
+                    <div>
+                      <h4 className="text-stone-800 dark:text-stone-300 font-semibold mb-1">Total Neptu: {result.weton.neptu}</h4>
+                      <p className="text-sm text-stone-500 dark:text-stone-400 leading-relaxed font-mono">({result.weton.dinaNeptu} untuk {result.weton.dina} + {result.weton.pasaranNeptu} untuk {result.weton.pasaran})</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-4">
+                    <div className="w-12 h-12 rounded-full bg-stone-50 dark:bg-stone-950 flex items-center justify-center border border-stone-200 dark:border-gold-600/30 text-gold-500 dark:text-gold-400 shrink-0 shadow-sm">
+                      <Flame size={20} />
+                    </div>
+                    <div>
+                      <h4 className="text-stone-800 dark:text-stone-300 font-semibold mb-1">Watak Dominan</h4>
+                      <p className="text-sm text-stone-600 dark:text-stone-400 leading-relaxed">{result.watak}</p>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-stone-200 dark:border-stone-800/50 pt-6">
+                    <h4 className="text-gold-600 dark:text-gold-500 font-semibold mb-5 flex items-center gap-2 uppercase tracking-widest text-xs">
+                      <Sparkles size={16} /> Primbon Ramalan
+                    </h4>
+                    <div className="grid gap-6">
+                      <div className="flex gap-4">
+                        <div className="w-12 h-12 rounded-full bg-stone-50 dark:bg-stone-950 flex items-center justify-center border border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-300 shrink-0 shadow-sm">
+                          <Sparkles size={18} />
+                        </div>
+                        <div>
+                          <h4 className="text-stone-800 dark:text-stone-300 font-semibold mb-1">Jalur Nasib (Pancasuda)</h4>
+                          <p className="text-sm text-stone-600 dark:text-stone-400 leading-relaxed">{result.nasib}</p>
+                        </div>
+                      </div>
+                      <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-start">
+                        <div className="flex gap-4 flex-1">
+                          <div className="w-12 h-12 rounded-full bg-stone-50 dark:bg-stone-950 flex items-center justify-center border border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-300 shrink-0 shadow-sm">
+                            <Compass size={18} />
+                          </div>
+                          <div>
+                            <h4 className="text-stone-800 dark:text-stone-300 font-semibold mb-1">Arah Rezeki & Kejayaan</h4>
+                            <p className="text-sm text-stone-600 dark:text-stone-400 leading-relaxed">{result.arah}</p>
+                          </div>
+                        </div>
+                        <div className="shrink-0 scale-75 sm:scale-100 -my-4">
+                          <FortuneCompass luckyDirections={result.arah} />
+                        </div>
+                      </div>
+                      <div className="flex gap-4">
+                        <div className="w-12 h-12 rounded-full bg-stone-50 dark:bg-stone-950 flex items-center justify-center border border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-300 shrink-0 shadow-sm">
+                          <Palette size={18} />
+                        </div>
+                        <div>
+                          <h4 className="text-stone-800 dark:text-stone-300 font-semibold mb-1">Warna Keberuntungan</h4>
+                          <p className="text-sm text-stone-600 dark:text-stone-400 leading-relaxed">{result.warna}</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="border-t border-stone-200 dark:border-stone-800/50 pt-6">
-                  <h4 className="text-gold-600 dark:text-gold-500 font-semibold mb-5 flex items-center gap-2 uppercase tracking-widest text-xs">
-                    <Sparkles size={16} /> Primbon Ramalan
-                  </h4>
-                  <div className="grid gap-6">
-                    <div className="flex gap-4">
-                      <div className="w-12 h-12 rounded-full bg-stone-50 dark:bg-stone-950 flex items-center justify-center border border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-300 shrink-0 shadow-sm">
-                        <Sparkles size={18} />
-                      </div>
-                      <div>
-                        <h4 className="text-stone-800 dark:text-stone-300 font-semibold mb-1">Jalur Nasib (Pancasuda)</h4>
-                        <p className="text-sm text-stone-600 dark:text-stone-400 leading-relaxed">{result.nasib}</p>
-                      </div>
-                    </div>
-                    <div className="flex gap-4">
-                      <div className="w-12 h-12 rounded-full bg-stone-50 dark:bg-stone-950 flex items-center justify-center border border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-300 shrink-0 shadow-sm">
-                        <Compass size={18} />
-                      </div>
-                      <div>
-                        <h4 className="text-stone-800 dark:text-stone-300 font-semibold mb-1">Arah Rezeki & Kejayaan</h4>
-                        <p className="text-sm text-stone-600 dark:text-stone-400 leading-relaxed">{result.arah}</p>
-                      </div>
-                    </div>
-                    <div className="flex gap-4">
-                      <div className="w-12 h-12 rounded-full bg-stone-50 dark:bg-stone-950 flex items-center justify-center border border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-300 shrink-0 shadow-sm">
-                        <Palette size={18} />
-                      </div>
-                      <div>
-                        <h4 className="text-stone-800 dark:text-stone-300 font-semibold mb-1">Warna Keberuntungan</h4>
-                        <p className="text-sm text-stone-600 dark:text-stone-400 leading-relaxed">{result.warna}</p>
-                      </div>
-                    </div>
-                  </div>
+                {/* Auspicious Hours */}
+                <div className="border-t border-stone-100 dark:border-stone-800 p-6 bg-stone-50/50 dark:bg-stone-950/20">
+                   <h4 className="text-xs font-bold text-stone-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                     <Clock size={14} /> Jam Baik Hari Ini
+                   </h4>
+                   <div className="grid grid-cols-1 sm:grid-cols-5 gap-2">
+                      {hours.map((h, idx) => (
+                        <div key={idx} className={cn(
+                          "p-2 rounded-lg border text-center transition-all",
+                          h.status === 'good' ? "bg-green-50 border-green-100 dark:bg-green-900/20 dark:border-green-800/50" : 
+                          h.status === 'warning' ? "bg-red-50 border-red-100 dark:bg-red-900/20 dark:border-red-800/50" :
+                          "bg-white border-stone-100 dark:bg-stone-900 dark:border-stone-800"
+                        )}>
+                           <div className="text-[10px] font-bold text-stone-400 dark:text-stone-500 mb-0.5">{h.time}</div>
+                           <div className={cn("text-[10px] font-bold truncate", h.status === 'good' ? "text-green-600" : h.status === 'warning' ? "text-red-500" : "text-stone-600 dark:text-stone-400")}>
+                             {h.name}
+                           </div>
+                        </div>
+                      ))}
+                   </div>
                 </div>
-              </div>
+              </article>
             </motion.div>
           )}
         </AnimatePresence>
@@ -255,6 +332,7 @@ export function WetonCalc() {
         const w2 = getWeton(d2);
         const jodoh = getJodoh(w1.neptu, w2.neptu);
         result = { w1, w2, jodoh };
+        if (!showLoveMeter) setShowLoveMeter(true);
       }
     }
 
@@ -274,28 +352,50 @@ export function WetonCalc() {
 
         <AnimatePresence>
           {result && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 overflow-hidden rounded-2xl text-center shadow-md">
-              <div className="flex flex-col sm:flex-row items-stretch border-b border-stone-200 dark:border-stone-800 divide-y sm:divide-y-0 sm:divide-x divide-stone-200 dark:divide-stone-800 bg-stone-50 dark:bg-stone-950/30">
-                 <div className="flex-1 p-4">
-                    <p className="text-xs text-stone-500 uppercase tracking-wide mb-1">Pihak 1</p>
-                    <p className="text-lg font-semibold text-stone-800 dark:text-stone-200">{result.w1.dina} {result.w1.pasaran}</p>
-                    <p className="text-sm font-mono text-stone-500 mt-1">Neptu: {result.w1.neptu}</p>
-                 </div>
-                 <div className="flex-1 p-4">
-                    <p className="text-xs text-stone-500 uppercase tracking-wide mb-1">Pihak 2</p>
-                    <p className="text-lg font-semibold text-stone-800 dark:text-stone-200">{result.w2.dina} {result.w2.pasaran}</p>
-                    <p className="text-sm font-mono text-stone-500 mt-1">Neptu: {result.w2.neptu}</p>
-                 </div>
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="space-y-4">
+              <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 overflow-hidden rounded-2xl text-center shadow-md">
+                <div className="flex flex-col sm:flex-row items-stretch border-b border-stone-200 dark:border-stone-800 divide-y sm:divide-y-0 sm:divide-x divide-stone-200 dark:divide-stone-800 bg-stone-50 dark:bg-stone-950/30">
+                   <div className="flex-1 p-4">
+                      <p className="text-xs text-stone-500 uppercase tracking-wide mb-1">Pihak 1</p>
+                      <p className="text-lg font-semibold text-stone-800 dark:text-stone-200">{result.w1.dina} {result.w1.pasaran}</p>
+                      <p className="text-sm font-mono text-stone-500 mt-1">Neptu: {result.w1.neptu}</p>
+                   </div>
+                   <div className="flex-1 p-4">
+                      <p className="text-xs text-stone-500 uppercase tracking-wide mb-1">Pihak 2</p>
+                      <p className="text-lg font-semibold text-stone-800 dark:text-stone-200">{result.w2.dina} {result.w2.pasaran}</p>
+                      <p className="text-sm font-mono text-stone-500 mt-1">Neptu: {result.w2.neptu}</p>
+                   </div>
+                </div>
+                <div className="p-6 py-8 relative overflow-hidden">
+                   {/* Animated Love Meter Bar */}
+                   <div className="absolute top-0 left-0 w-full h-1 bg-stone-100 dark:bg-stone-800">
+                     <motion.div 
+                       initial={{ width: 0 }} 
+                       animate={{ width: `${loveProgress}%` }} 
+                       transition={{ duration: 1.5, ease: "easeInOut" }}
+                       className="h-full bg-gradient-to-r from-red-400 to-pink-500" 
+                     />
+                   </div>
+
+                   <p className="text-sm text-stone-500 dark:text-stone-400 mb-2">Total Neptu Berdua: <span className="text-stone-800 dark:text-stone-300 font-bold">{result.w1.neptu + result.w2.neptu}</span> (dibagi 7, sisa {result.jodoh.score})</p>
+                   <div className="inline-block mt-2">
+                     <motion.div
+                       initial={{ scale: 0.8, opacity: 0 }}
+                       animate={{ scale: 1, opacity: 1 }}
+                       transition={{ delay: 1.2, type: "spring" }}
+                     >
+                       <h3 className="text-2xl font-bold text-gold-600 dark:text-gold-500 mb-3 uppercase tracking-tighter">{result.jodoh.category.split('(')[0]}</h3>
+                     </motion.div>
+                     <p className="text-stone-600 dark:text-stone-300 bg-stone-50 dark:bg-stone-800/50 p-4 rounded-xl max-w-md mx-auto italic border border-stone-200 dark:border-stone-800">
+                       "... {result.jodoh.category.split('(')[1]?.replace(')','')} ..."
+                     </p>
+                   </div>
+                </div>
               </div>
-              <div className="p-6 py-8">
-                 <p className="text-sm text-stone-500 dark:text-stone-400 mb-2">Total Neptu Berdua: <span className="text-stone-800 dark:text-stone-300 font-bold">{result.w1.neptu + result.w2.neptu}</span> (dibagi 7, sisa {result.jodoh.score})</p>
-                 <div className="inline-block mt-2">
-                   <h3 className="text-2xl font-bold text-gold-600 dark:text-gold-500 mb-3">{result.jodoh.category.split('(')[0]}</h3>
-                   <p className="text-stone-600 dark:text-stone-300 bg-stone-50 dark:bg-stone-800/50 p-4 rounded-xl max-w-md mx-auto italic border border-stone-200 dark:border-stone-800">
-                     "... {result.jodoh.category.split('(')[1]?.replace(')','')} ..."
-                   </p>
-                 </div>
-              </div>
+              
+              <button className="w-full py-4 bg-stone-100 dark:bg-stone-800 rounded-xl text-stone-500 dark:text-stone-400 text-xs font-bold uppercase tracking-widest hover:bg-gold-500 hover:text-white transition-all shadow-sm">
+                Simpan Sebagai Kartu Weton
+              </button>
             </motion.div>
           )}
         </AnimatePresence>

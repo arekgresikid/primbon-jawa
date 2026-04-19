@@ -119,9 +119,9 @@ export function Calendar() {
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto pb-32 px-3 sm:px-6">
+    <section className="w-full max-w-5xl mx-auto pb-32 px-3 sm:px-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6 pt-2">
+      <header className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6 pt-2">
         <h2 className="text-xl sm:text-2xl font-semibold text-gold-500 tracking-tight flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
           <span className="flex items-center gap-2"><CalendarIcon size={24} /> {MONTHS[currentDate.getMonth()]} {currentDate.getFullYear()}</span>
           <span className="text-[11px] sm:text-sm font-medium text-stone-500 dark:text-stone-400 border border-stone-300 dark:border-stone-800 px-2 py-1 rounded-md">
@@ -190,7 +190,7 @@ export function Calendar() {
             </button>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Grid */}
       <div className="bg-white/50 dark:bg-stone-900/50 border border-stone-200 dark:border-stone-800 rounded-xl overflow-hidden backdrop-blur-md w-full shadow-sm">
@@ -253,7 +253,7 @@ export function Calendar() {
           <Modal day={selectedDay} onClose={() => setSelectedDay(null)} />
         )}
       </AnimatePresence>
-    </div>
+    </section>
   );
 }
 
