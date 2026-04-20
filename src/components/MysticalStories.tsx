@@ -164,7 +164,7 @@ export function MysticalStories() {
           Cerita Mistis
         </h2>
         <p className="text-stone-500 dark:text-stone-400 text-sm max-w-lg mx-auto leading-relaxed">
-          Kumpulan artikel misteri dan kearifan lokal yang terbit secara gaib setiap 3 hari sekali menggunakan kecerdasan buatan.
+          <span className="text-red-600 dark:text-red-500 font-bold">Kumpulan artikel misteri dan kearifan lokal</span> yang <span className="text-red-600 dark:text-red-500 font-bold">terbit secara gaib setiap 3 hari sekali</span> menggunakan kecerdasan buatan.
         </p>
 
         {/* Search Bar */}

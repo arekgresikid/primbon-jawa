@@ -1,11 +1,14 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { SEO } from './components/SEO';
+import { Footer } from './components/Footer';
 import { CalendarDays, BookOpen, MessageSquare, Quote, Star, Compass, Feather, Sun, Moon } from 'lucide-react';
 import { cn } from './lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 
 // Lazy loading for optimization
+// Lazy loading for optimization
 const Calendar = lazy(() => import('./components/Calendar').then(m => ({ default: m.Calendar })));
+const RajahLibrary = lazy(() => import('./components/RajahLibrary').then(m => ({ default: m.RajahLibrary })));
 const WetonCalc = lazy(() => import('./components/WetonCalc').then(m => ({ default: m.WetonCalc })));
 const AksaraConverter = lazy(() => import('./components/AksaraConverter').then(m => ({ default: m.AksaraConverter })));
 const KonsultasiAI = lazy(() => import('./components/KonsultasiAI').then(m => ({ default: m.KonsultasiAI })));
@@ -22,7 +25,7 @@ const NavLoading = () => (
 );
 
 export default function App() {
-  type Tab = 'calendar' | 'weton' | 'aksara' | 'ai' | 'kompas' | 'cerita';
+  type Tab = 'calendar' | 'weton' | 'aksara' | 'ai' | 'kompas' | 'cerita' | 'rajah';
   const [activeTab, setActiveTab] = useState<Tab>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('primbon-active-tab');
@@ -104,7 +107,12 @@ export default function App() {
           <Suspense fallback={<NavLoading />}>
             {activeTab === 'calendar' && (
               <motion.div className="flex-1 flex flex-col" key="calendar" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
-                <Calendar />
+                <Calendar setTab={setActiveTab} />
+              </motion.div>
+            )}
+            {activeTab === 'rajah' && (
+              <motion.div className="flex-1 flex flex-col" key="rajah" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.2 }}>
+                <RajahLibrary onBack={() => setActiveTab('calendar')} />
               </motion.div>
             )}
             {activeTab === 'weton' && (
@@ -134,6 +142,8 @@ export default function App() {
             )}
           </Suspense>
         </AnimatePresence>
+
+        <Footer />
       </main>
 
       {/* Mobile Bottom Navigation */}

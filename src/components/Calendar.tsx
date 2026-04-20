@@ -3,6 +3,8 @@ import { ChevronLeft, ChevronRight, X, Info, Search, Calendar as CalendarIcon } 
 import { motion, AnimatePresence } from 'motion/react';
 import { getWeton, getJavaneseDateLocal, getPranataMangsa } from '../lib/jawaMath';
 import { cn } from '../lib/utils';
+import { rajahs } from '../data/rajahData';
+import { Sparkles, Copy, Check, ArrowRight } from 'lucide-react';
 
 interface DayData {
   date: Date;
@@ -16,7 +18,7 @@ interface DayData {
 const DAYS_OF_WEEK = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 const MONTHS = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
-export function Calendar() {
+export function Calendar({ setTab }: { setTab?: (tab: any) => void }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState<DayData | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -248,12 +250,93 @@ export function Calendar() {
         </div>
       </div>
 
+      {/* Rajah of the Day Widget */}
+      <RajahHighlight setTab={setTab} />
+
       <AnimatePresence>
         {selectedDay && (
           <Modal day={selectedDay} onClose={() => setSelectedDay(null)} />
         )}
       </AnimatePresence>
     </section>
+  );
+}
+
+function RajahHighlight({ setTab }: { setTab?: (tab: any) => void }) {
+  const [copied, setCopied] = useState(false);
+  
+  // Mystical Selection Algorithm: Seeded hash based on today's date
+  const today = new Date();
+  const dateSeed = `${today.getFullYear()}${today.getMonth()}${today.getDate()}mystic-seed`;
+  
+  let hash = 0;
+  for (let i = 0; i < dateSeed.length; i++) {
+    const char = dateSeed.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  
+  const rajahIndex = Math.abs(hash) % rajahs.length;
+  const rajah = rajahs[rajahIndex];
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(rajah.pattern);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="mt-8 relative group"
+    >
+      <div className="absolute -inset-1 bg-gradient-to-r from-gold-500/20 to-gold-600/20 rounded-[2.5rem] blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+      <div className="relative bg-white dark:bg-stone-900 border border-stone-100 dark:border-stone-800 p-8 rounded-[2rem] overflow-hidden shadow-sm">
+        <div className="flex flex-col md:flex-row items-center gap-8">
+          <div className="flex-1 space-y-4 text-center md:text-left">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-gold-400/10 rounded-full border border-gold-400/20">
+              <Sparkles size={12} className="text-gold-600" />
+              <span className="text-[10px] font-bold text-gold-600 uppercase tracking-widest">Rajah Hari Ini</span>
+            </div>
+            <h3 className="text-2xl font-black text-stone-900 dark:text-stone-100 italic transition-colors group-hover:text-gold-600">
+              {rajah.name}
+            </h3>
+            <p className="text-stone-500 dark:text-stone-400 text-sm leading-relaxed max-w-md italic">
+              "{rajah.description}"
+            </p>
+            <div className="pt-2">
+              <p className="text-[10px] text-stone-400 font-bold uppercase tracking-[0.2em] mb-4">
+                Fungsi: {rajah.usage}
+              </p>
+            </div>
+          </div>
+
+          <div className="w-full md:w-auto flex flex-col items-center gap-4">
+            <div className="relative">
+              <pre className="bg-stone-50 dark:bg-stone-950 border border-stone-100 dark:border-stone-800/50 rounded-2xl p-8 font-mono text-xl sm:text-2xl text-stone-700 dark:text-stone-300 shadow-inner group-hover:border-gold-500/20 transition-all text-center leading-relaxed">
+                {rajah.pattern}
+              </pre>
+              <button 
+                onClick={copyToClipboard}
+                className={cn(
+                  "absolute -top-3 -right-3 p-3 rounded-xl shadow-lg transition-all transform hover:scale-110",
+                  copied ? "bg-green-500 text-white" : "bg-white dark:bg-stone-800 text-stone-400 hover:text-gold-600"
+                )}
+              >
+                {copied ? <Check size={18} /> : <Copy size={18} />}
+              </button>
+            </div>
+            <button 
+              onClick={() => setTab?.('rajah')}
+              className="text-[10px] text-stone-400 hover:text-gold-500 font-bold uppercase tracking-widest flex items-center gap-2 transition-colors"
+            >
+              Lihat Koleksi Lengkap <ArrowRight size={12} />
+            </button>
+          </div>
+        </div>
+      </div>
+    </motion.div>
   );
 }
 
