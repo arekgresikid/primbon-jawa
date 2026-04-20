@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, UserCircle, MessageSquare, Loader2, Feather, Trash2, Download, Copy, Check } from 'lucide-react';
+import { Send, UserCircle, MessageSquare, Loader2, Feather, Trash2, Download, Copy, Check, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 import Markdown from 'react-markdown';
@@ -35,7 +35,10 @@ export function KonsultasiAI() {
   const [loadingMessage, setLoadingMessage] = useState("Sesepuh sedang bersemedi...");
   const [copyStatus, setCopyStatus] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const lastMessageRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const [showScrollButton, setShowScrollButton] = useState(false);
 
   // Auto-resize chat input
   useEffect(() => {
@@ -76,12 +79,33 @@ export function KonsultasiAI() {
     if (messages.length > 0) {
       const lastMessage = messages[messages.length - 1];
       if (lastMessage.role === 'assistant' && messages.length > 1) {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        // Scroll ke awal/header pesan asisten
+        lastMessageRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       } else {
+        // Scroll ke dasar untuk pesan user
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
       }
     }
   }, [messages]);
+
+  useEffect(() => {
+    const handleWindowScroll = () => {
+      const scrolled = window.scrollY;
+      const viewportHeight = window.innerHeight;
+      const fullHeight = document.documentElement.scrollHeight;
+      
+      // Tampilkan tombol jika jarak ke bawah > 150px
+      const isFarFromBottom = fullHeight - (scrolled + viewportHeight) > 150;
+      setShowScrollButton(isFarFromBottom && scrolled > 300);
+    };
+
+    window.addEventListener('scroll', handleWindowScroll);
+    return () => window.removeEventListener('scroll', handleWindowScroll);
+  }, []);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   const handleClearChat = () => {
     if (confirm("Hapus semua percakapan?")) {
@@ -168,9 +192,12 @@ Selalu berikan nasehat spiritual Jawa yang menenangkan.`;
   };
 
   return (
-    <div className="w-full flex-1 flex flex-col relative">
+   <div className="w-full flex-1 flex flex-col relative overflow-hidden">
        {/* Main scrollable chat area */}
-        <section className="flex-1 overflow-y-auto px-4 sm:px-6 pt-6 pb-40 w-full flex flex-col items-center">
+        <section 
+          ref={scrollContainerRef}
+          className="flex-1 overflow-y-auto px-4 sm:px-6 pt-6 pb-40 w-full flex flex-col items-center"
+        >
           <div className="w-full max-w-3xl">
             <div className="mb-12 text-center shrink-0">
              <h2 className="text-2xl sm:text-3xl font-bold text-stone-900 dark:text-stone-100 flex items-center justify-center gap-3">
@@ -188,7 +215,7 @@ Selalu berikan nasehat spiritual Jawa yang menenangkan.`;
                   initial={{ opacity: 0, y: 5 }} 
                   animate={{ opacity: 1, y: 0 }} 
                   key={msg.id} 
-                  ref={index === messages.length - 1 ? messagesEndRef : null}
+                  ref={index === messages.length - 1 ? lastMessageRef : null}
                   className={cn("flex flex-col w-full", msg.role === 'user' ? "items-end" : "items-start")}
                 >
                   <div className="flex items-center gap-2 mb-2 px-1">
@@ -251,10 +278,26 @@ Selalu berikan nasehat spiritual Jawa yang menenangkan.`;
                   </div>
                 </motion.div>
               )}
-              <div className="h-4" />
+              <div ref={messagesEndRef} className="h-4" />
            </div>
           </div>
         </section>
+
+        {/* Floating Scroll to Bottom Button */}
+        <AnimatePresence>
+          {showScrollButton && (
+            <motion.button
+              initial={{ opacity: 0, scale: 0.5, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.5, y: 20 }}
+              onClick={scrollToBottom}
+              className="fixed bottom-[140px] right-[20px] md:right-[calc(50%-360px)] z-50 w-12 h-12 bg-white dark:bg-stone-900 text-gold-600 dark:text-gold-500 rounded-full flex items-center justify-center shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-stone-200 dark:border-stone-800 hover:scale-110 transition-all active:scale-95"
+              title="Gulir ke dasar"
+            >
+              <ChevronDown size={28} />
+            </motion.button>
+          )}
+        </AnimatePresence>
 
        {/* Fixed Input Area */}
        <div className="fixed bottom-16 left-0 right-0 w-full bg-stone-100/95 dark:bg-stone-950/95 backdrop-blur-md border-t border-stone-200 dark:border-stone-800 px-4 py-3 sm:px-6 z-40 shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.1)]">

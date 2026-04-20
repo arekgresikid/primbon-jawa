@@ -67,10 +67,11 @@ async function startServer() {
 
       if (!response.ok) {
         const errorText = await response.text();
-        logToFile(`Pollinations API Error (${response.status}): ${errorText}`);
+        logToFile(`Pollinations API Error (Image) (${response.status}): ${errorText}`);
         return res.status(response.status).json({ error: `Pollinations API Returned: ${errorText}` });
       }
 
+      const contentType = response.headers.get("content-type") || "image/jpeg";
       const buffer = await response.arrayBuffer();
       const imageBuffer = Buffer.from(buffer);
 
@@ -78,11 +79,11 @@ async function startServer() {
         throw new Error("Received empty image buffer from AI service.");
       }
 
-      res.setHeader("Content-Type", "image/jpeg");
-      res.setHeader("Cache-Control", "public, max-age=31536000"); // Cache selamanya karena seed unik
+      res.setHeader("Content-Type", contentType);
+      res.setHeader("Cache-Control", "public, max-age=31536000");
       res.send(imageBuffer);
       
-      logToFile(`Successfully sent image of size: ${imageBuffer.length} bytes.`);
+      logToFile(`Successfully sent image (${contentType}) of size: ${imageBuffer.length} bytes.`);
 
     } catch (error: any) {
       logToFile(`CRITICAL SERVER ERROR (Proxy): ${error.stack || error.message}`);
@@ -106,6 +107,10 @@ async function startServer() {
         finalMessages.push({ role: "user", content: userMessage });
       }
 
+      // Gunakan model yang dipilih user, default ke openai jika grok gagal atau tidak diset
+      const modelName = req.body.model || "openai";
+      logToFile(`Chat Completion request with model: ${modelName}`);
+
       const response = await fetch("https://gen.pollinations.ai/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -114,13 +119,31 @@ async function startServer() {
         },
         body: JSON.stringify({ 
           messages: [{ role: "system", content: systemInstruction }, ...finalMessages],
-          model: "grok",
+          model: modelName,
           stream: false
         })
       });
 
       if (!response.ok) {
         const errorText = await response.text();
+        logToFile(`Pollinations Chat Error (${response.status}): ${errorText}`);
+        // Jika model tertentu (seperti grok) gagal, coba fallback ke openai
+        if (modelName !== "openai") {
+           logToFile("Retrying chat with fallback model: openai");
+           const fallbackResponse = await fetch("https://gen.pollinations.ai/v1/chat/completions", {
+              method: "POST",
+              headers: { "Authorization": `Bearer ${mySecretKey}`, "Content-Type": "application/json" },
+              body: JSON.stringify({ 
+                messages: [{ role: "system", content: systemInstruction }, ...finalMessages],
+                model: "openai",
+                stream: false
+              })
+           });
+           if (fallbackResponse.ok) {
+              const fbResult = await fallbackResponse.json();
+              return res.json({ reply: fbResult.choices?.[0]?.message?.content || "Sistem kembali stabil." });
+           }
+        }
         throw new Error(`Pollinations API error: ${errorText}`);
       }
 
@@ -129,6 +152,7 @@ async function startServer() {
 
       res.json({ reply });
     } catch (error: any) {
+      logToFile(`Chat Error: ${error.message}`);
       res.status(500).json({ error: error.message });
     }
   });

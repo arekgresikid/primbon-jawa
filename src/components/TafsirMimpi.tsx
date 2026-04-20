@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Moon, CloudMoon, Sparkles, Loader2, Trash2, Download, Copy, Check, Image as ImageIcon, Feather, UserCircle } from 'lucide-react';
+import { Send, Moon, CloudMoon, Sparkles, Loader2, Trash2, Download, Copy, Check, Image as ImageIcon, Feather, UserCircle, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 import Markdown from 'react-markdown';
@@ -73,7 +73,10 @@ export function TafsirMimpi() {
   const [isLoading, setIsLoading] = useState(false);
   const [copyStatus, setCopyStatus] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const lastMessageRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const [showScrollButton, setShowScrollButton] = useState(false);
 
   useEffect(() => {
     if (inputRef.current) {
@@ -90,12 +93,33 @@ export function TafsirMimpi() {
     if (messages.length > 0) {
       const lastMessage = messages[messages.length - 1];
       if (lastMessage.role === 'assistant' && messages.length > 1) {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        // Fokus ke awal pesan asisten
+        lastMessageRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       } else {
+        // Fokus ke dasar untuk pesan user
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
       }
     }
   }, [messages]);
+
+  useEffect(() => {
+    const handleWindowScroll = () => {
+      const scrolled = window.scrollY;
+      const viewportHeight = window.innerHeight;
+      const fullHeight = document.documentElement.scrollHeight;
+      
+      // Tampilkan jika jarak ke bawah > 150px
+      const isFarFromBottom = fullHeight - (scrolled + viewportHeight) > 150;
+      setShowScrollButton(isFarFromBottom && scrolled > 300);
+    };
+
+    window.addEventListener('scroll', handleWindowScroll);
+    return () => window.removeEventListener('scroll', handleWindowScroll);
+  }, []);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   const handleClearChat = () => {
     if (confirm("Hapus catatan tafsir mimpi ini?")) {
@@ -196,8 +220,11 @@ Gunakan format Markdown yang indah.`;
   };
 
   return (
-    <div className="w-full flex-1 flex flex-col relative bg-gradient-to-b from-stone-50 to-stone-100 dark:from-stone-950 dark:to-stone-900 transition-colors">
-      <section className="flex-1 overflow-y-auto px-4 sm:px-6 pt-6 pb-40 w-full flex flex-col items-center flex-grow">
+    <div className="w-full flex-1 flex flex-col relative bg-gradient-to-b from-stone-50 to-stone-100 dark:from-stone-950 dark:to-stone-900 transition-colors overflow-hidden">
+      <section 
+        ref={scrollContainerRef}
+        className="flex-1 overflow-y-auto px-4 sm:px-6 pt-6 pb-40 w-full flex flex-col items-center flex-grow"
+      >
         <div className="w-full max-w-3xl">
           <div className="mb-10 text-center shrink-0">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-stone-900 dark:bg-stone-800 rounded-full mb-4 shadow-xl border border-gold-500/30">
@@ -217,7 +244,7 @@ Gunakan format Markdown yang indah.`;
                 initial={{ opacity: 0, scale: 0.98 }} 
                 animate={{ opacity: 1, scale: 1 }} 
                 key={msg.id} 
-                ref={index === messages.length - 1 ? messagesEndRef : null}
+                ref={index === messages.length - 1 ? lastMessageRef : null}
                 className={cn("flex flex-col w-full", msg.role === 'user' ? "items-end" : "items-start")}
               >
                 <div className="flex items-center gap-2 mb-2 px-1">
@@ -280,10 +307,26 @@ Gunakan format Markdown yang indah.`;
                  </div>
               </motion.div>
             )}
-            <div className="h-4" />
+            <div ref={messagesEndRef} className="h-4" />
           </div>
         </div>
       </section>
+
+        {/* Floating Scroll to Bottom Button */}
+        <AnimatePresence>
+          {showScrollButton && (
+            <motion.button
+              initial={{ opacity: 0, scale: 0.5, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.5, y: 20 }}
+              onClick={scrollToBottom}
+              className="fixed bottom-[140px] right-[20px] md:right-[calc(50%-360px)] z-50 w-12 h-12 bg-white dark:bg-stone-900 text-gold-600 dark:text-gold-500 rounded-full flex items-center justify-center shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-stone-200 dark:border-stone-800 hover:scale-110 transition-all active:scale-95"
+              title="Gulir ke dasar"
+            >
+              <ChevronDown size={28} />
+            </motion.button>
+          )}
+        </AnimatePresence>
 
       <div className="fixed bottom-16 left-0 right-0 w-full bg-white/80 dark:bg-stone-950/80 backdrop-blur-md border-t border-stone-200 dark:border-stone-800 px-4 py-3 sm:px-6 z-40">
         <div className="max-w-3xl mx-auto w-full">
