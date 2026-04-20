@@ -98,7 +98,7 @@ Selalu berikan nasehat spiritual Jawa yang menenangkan.`;
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || "Gagal menghubungi Sesepuh AI.");
+        throw new Error(errorData.error || "Sistem sedang sibuk atau API Key belum disetel.");
       }
 
       const data = await response.json();
@@ -181,7 +181,12 @@ Selalu berikan nasehat spiritual Jawa yang menenangkan.`;
                       ? "bg-stone-800 dark:bg-stone-100 text-stone-50 dark:text-stone-900 rounded-tr-sm" 
                       : "bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 text-stone-800 dark:text-stone-200 rounded-tl-sm shadow-sm"
                   )}>
-                    <div className="prose prose-stone dark:prose-invert max-w-none">
+                    <div className={cn(
+                      "prose prose-stone max-w-none",
+                      msg.role === 'user' 
+                        ? "prose-invert dark:prose-neutral" 
+                        : "dark:prose-invert"
+                    )}>
                       <Markdown>{msg.text}</Markdown>
                     </div>
                   </div>
