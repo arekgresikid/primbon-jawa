@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import html2canvas from 'html2canvas';
 import { getWeton, getWatak, getJodoh, getRamalanNasib, getArahRezeki, getWarnaKeberuntungan, getStrategiBisnis, getDailyLuck, getCharacterScores, getAuspiciousHours } from '../lib/jawaMath';
 import { cn } from '../lib/utils';
-import { Heart, Search, User, Flame, Sparkles, Compass, Palette, Briefcase, TrendingUp, AlertTriangle, Info, Zap, Clock, Share2, Download, Check } from 'lucide-react';
+import { Heart, Search, User, Flame, Sparkles, Compass, Palette, Briefcase, TrendingUp, AlertTriangle, Info, Zap, Clock, Share2, Download, Check, CalendarDays } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { RadarChart } from './RadarChart';
 import { FortuneCompass } from './FortuneCompass';
@@ -89,12 +89,15 @@ export function WetonCalc() {
       <div className="space-y-6">
         <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-5 rounded-xl shadow-sm">
           <label className="block text-sm font-medium text-stone-600 dark:text-stone-400 mb-2">Tanggal Lahir Anda</label>
-          <input 
-            type="date"
-            value={date1}
-            onChange={e => setDate1(e.target.value)}
-            className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-3 text-stone-900 dark:text-stone-200 outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition-all font-sans"
-          />
+                    <div className="relative">
+            <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 text-gold-500 pointer-events-none" size={18} />
+            <input 
+              type="date"
+              value={date1}
+              onChange={e => setDate1(e.target.value)}
+              className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-3 pl-10 text-stone-900 dark:text-stone-200 outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition-all font-sans"
+            />
+          </div>
         </div>
 
         <AnimatePresence>
@@ -318,12 +321,15 @@ export function WetonCalc() {
       <div className="space-y-6">
         <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-5 rounded-xl shadow-sm">
           <label className="block text-sm font-medium text-stone-600 dark:text-stone-400 mb-2">Tanggal Lahir Anda</label>
-          <input 
-            type="date"
-            value={date1}
-            onChange={e => setDate1(e.target.value)}
-            className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-3 text-stone-900 dark:text-stone-200 outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition-all font-sans"
-          />
+                    <div className="relative">
+            <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 text-gold-500 pointer-events-none" size={18} />
+            <input 
+              type="date"
+              value={date1}
+              onChange={e => setDate1(e.target.value)}
+              className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-3 pl-10 text-stone-900 dark:text-stone-200 outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition-all font-sans"
+            />
+          </div>
         </div>
 
         <AnimatePresence>
@@ -432,12 +438,18 @@ export function WetonCalc() {
         <div className="grid sm:grid-cols-2 gap-4">
           <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-5 rounded-xl shadow-sm">
              <label className="block text-sm font-medium text-stone-600 dark:text-stone-400 mb-2">Tanggal Lahir Anda</label>
-             <input type="date" value={date1} onChange={e => setDate1(e.target.value)} className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-3 text-stone-900 dark:text-stone-200 outline-none focus:border-gold-500" />
+             <div className="relative">
+               <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 text-gold-500 pointer-events-none" size={16} />
+               <input type="date" value={date1} onChange={e => setDate1(e.target.value)} className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-3 pl-9 text-stone-900 dark:text-stone-200 outline-none focus:border-gold-500" />
+             </div>
           </div>
           <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-5 rounded-xl relative shadow-sm">
              <div className="absolute top-1/2 left-0 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-stone-100 dark:bg-stone-800 text-stone-400 hidden sm:flex items-center justify-center border-4 border-white dark:border-stone-950 z-10"><Heart size={14} /></div>
              <label className="block text-sm font-medium text-stone-600 dark:text-stone-400 mb-2">Tanggal Lahir Pasangan</label>
-             <input type="date" value={date2} onChange={e => setDate2(e.target.value)} className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-3 text-stone-900 dark:text-stone-200 outline-none focus:border-gold-500" />
+             <div className="relative">
+               <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 text-gold-500 pointer-events-none" size={16} />
+               <input type="date" value={date2} onChange={e => setDate2(e.target.value)} className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-3 pl-9 text-stone-900 dark:text-stone-200 outline-none focus:border-gold-500" />
+             </div>
           </div>
         </div>
 
@@ -506,12 +518,15 @@ export function WetonCalc() {
       <div className="space-y-6">
         <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-5 rounded-xl shadow-sm">
           <label className="block text-sm font-medium text-stone-600 dark:text-stone-400 mb-2">Pilih Tanggal Acara / Kelahiran</label>
-          <input 
-            type="date"
-            value={date1}
-            onChange={e => setDate1(e.target.value)}
-            className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-3 text-stone-900 dark:text-stone-200 outline-none focus:border-gold-500 transition-all"
-          />
+          <div className="relative">
+            <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 text-gold-500 pointer-events-none" size={18} />
+            <input 
+              type="date"
+              value={date1}
+              onChange={e => setDate1(e.target.value)}
+              className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-3 pl-10 text-stone-900 dark:text-stone-200 outline-none focus:border-gold-500 transition-all"
+            />
+          </div>
         </div>
 
         <AnimatePresence>
