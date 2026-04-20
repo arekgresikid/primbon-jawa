@@ -3,12 +3,12 @@ import { SEO } from './components/SEO';
 import { Footer } from './components/Footer';
 import { 
   CalendarDays, BookOpen, MessageSquare, Quote, 
-  Compass, Feather, Sun, Moon, Sparkles, LayoutGrid, CloudMoon, Zap
+  Compass, Feather, Sun, Moon, Sparkles, LayoutGrid, CloudMoon, Zap, Info
 } from 'lucide-react';
 import { cn } from './lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 
-type Tab = 'calendar' | 'weton' | 'aksara' | 'ai' | 'kompas' | 'cerita' | 'rajah' | 'mimpi' | 'kedutan';
+type Tab = 'calendar' | 'weton' | 'aksara' | 'ai' | 'kompas' | 'cerita' | 'rajah' | 'mimpi' | 'kedutan' | 'about' | 'privacy' | 'terms';
 
 // Lazy loading for optimization
 const Calendar = lazy(() => import('./components/Calendar').then(m => ({ default: m.Calendar })));
@@ -21,6 +21,9 @@ const FortuneCompass = lazy(() => import('./components/FortuneCompass').then(m =
 const MysticalStories = lazy(() => import('./components/MysticalStories').then(m => ({ default: m.MysticalStories })));
 const TafsirMimpi = lazy(() => import('./components/TafsirMimpi.tsx').then(m => ({ default: m.TafsirMimpi })));
 const KedutanFirasat = lazy(() => import('./components/KedutanFirasat').then(m => ({ default: m.KedutanFirasat })));
+const About = lazy(() => import('./components/About.tsx').then(m => ({ default: m.About })));
+const PrivacyPolicy = lazy(() => import('./components/PrivacyPolicy.tsx').then(m => ({ default: m.PrivacyPolicy })));
+const TermsOfService = lazy(() => import('./components/TermsOfService.tsx').then(m => ({ default: m.TermsOfService })));
 
 // Loading placeholder
 const NavLoading = () => (
@@ -119,6 +122,7 @@ export default function App() {
             { id: 'kompas', label: 'Kompas', icon: Compass },
             { id: 'kedutan', label: 'Kedutan', icon: Zap },
             { id: 'ai', label: 'AI Sesepuh', icon: MessageSquare },
+            { id: 'about', label: 'Tentang', icon: Info },
           ].map((item) => (
             <button
               key={item.id}
@@ -186,10 +190,25 @@ export default function App() {
                 <KedutanFirasat setActiveTab={setActiveTab} />
               </motion.div>
             )}
+            {activeTab === 'about' && (
+              <motion.div className="flex-1 flex flex-col" key="about" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
+                <About />
+              </motion.div>
+            )}
+            {activeTab === 'privacy' && (
+              <motion.div className="flex-1 flex flex-col" key="privacy" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
+                <PrivacyPolicy />
+              </motion.div>
+            )}
+            {activeTab === 'terms' && (
+              <motion.div className="flex-1 flex flex-col" key="terms" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
+                <TermsOfService />
+              </motion.div>
+            )}
           </Suspense>
         </AnimatePresence>
 
-        <Footer />
+        <Footer setTab={setActiveTab} />
       </main>
 
       {/* Mobile Bottom Navigation */}
