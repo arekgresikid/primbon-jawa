@@ -6,6 +6,7 @@ import { Heart, Search, User, Flame, Sparkles, Compass, Palette, Briefcase, Tren
 import { motion, AnimatePresence } from 'motion/react';
 import { RadarChart } from './RadarChart';
 import { FortuneCompass } from './FortuneCompass';
+import { WetonCircle } from './WetonCircle';
 
 export function WetonCalc() {
   const cardRef = useRef<HTMLElement>(null);
@@ -274,6 +275,10 @@ export function WetonCalc() {
                 <p>Adalah perhitungan siklus 30 pekan (1 Wuku = 7 hari) yang dinamakan dari riwayat seorang tokoh prasejarah Jawa, Raden Watugunung. Wuku mewakili corak takdir seseorang atau alam dalam 210 hari masa putarannya, yang memengaruhi segala tata kelola hari baik pernikahan dan bisnis.</p>
              </div>
            </div>
+        </div>
+
+        <div className="border-t border-stone-200 dark:border-stone-800/50 pt-8 mt-8">
+           <WetonCircle onSelect={(dob) => setDate1(dob)} />
         </div>
       </div>
     );

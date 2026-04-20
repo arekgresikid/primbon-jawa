@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, UserCircle, MessageSquare, Loader2, Feather, Trash2 } from 'lucide-react';
+import { Send, UserCircle, MessageSquare, Loader2, Feather, Trash2, Download, Copy, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 import Markdown from 'react-markdown';
@@ -33,7 +33,17 @@ export function KonsultasiAI() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("Sesepuh sedang bersemedi...");
+  const [copyStatus, setCopyStatus] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto-resize chat input
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.style.height = 'auto';
+      inputRef.current.style.height = `${Math.min(inputRef.current.scrollHeight, 128)}px`;
+    }
+  }, [input]);
 
   // Save messages to local storage
   useEffect(() => {
@@ -62,9 +72,16 @@ export function KonsultasiAI() {
     return () => clearInterval(interval);
   }, [isLoading]);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  useEffect(() => {
+    if (messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage.role === 'assistant' && messages.length > 1) {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+      }
+    }
+  }, [messages]);
 
   const handleClearChat = () => {
     if (confirm("Hapus semua percakapan?")) {
@@ -77,9 +94,26 @@ export function KonsultasiAI() {
     }
   };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+  const handleDownload = (msg: ChatMessage) => {
+    const text = `[SESEPUH AI - KONSULTASI]\n\n${msg.text}\n\n---\nGenerasi: ${new Date().toLocaleString('id-ID')}`;
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Respon-Sesepuh-${msg.id.slice(-5)}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleCopy = async (msg: ChatMessage) => {
+    try {
+      await navigator.clipboard.writeText(msg.text);
+      setCopyStatus(msg.id);
+      setTimeout(() => setCopyStatus(null), 2000);
+    } catch (err) {
+      console.error("Gagal menyalin teks");
+    }
+  };
 
   const handleSend = async (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -101,34 +135,18 @@ Selalu berikan nasehat spiritual Jawa yang menenangkan.`;
 
       const response = await fetch("/api/custom-service", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: messages.map(m => ({ 
-            role: m.role, 
-            content: m.text 
-          })),
+          messages: messages.map(m => ({ role: m.role, content: m.text })),
           systemInstruction,
           userMessage: userMessage.text
         })
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || "Sistem sedang sibuk atau API Key belum disetel.");
-      }
+      if (!response.ok) throw new Error("Sistem sedang sibuk.");
 
       const data = await response.json();
       let replyText = data.reply || "Sesepuh sedang diam seribu bahasa...";
-
-      // Pembersihan ganda jika masih ada JSON yang tersisa
-      if (typeof replyText === 'string' && replyText.trim().startsWith('{')) {
-        try {
-          const parsed = JSON.parse(replyText);
-          replyText = parsed.choices?.[0]?.message?.content || parsed.content || replyText;
-        } catch (e) {}
-      }
 
       const assistantMessage: ChatMessage = { 
         id: (Date.now() + 1).toString(), 
@@ -138,7 +156,6 @@ Selalu berikan nasehat spiritual Jawa yang menenangkan.`;
       
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
-      console.error(error);
       const errorMessage: ChatMessage = { 
         id: (Date.now() + 1).toString(), 
         role: "assistant", 
@@ -155,33 +172,26 @@ Selalu berikan nasehat spiritual Jawa yang menenangkan.`;
        {/* Main scrollable chat area */}
         <section className="flex-1 overflow-y-auto px-4 sm:px-6 pt-6 pb-40 w-full flex flex-col items-center">
           <div className="w-full max-w-3xl">
-           <div className="mb-8 text-center shrink-0">
+            <div className="mb-12 text-center shrink-0">
              <h2 className="text-2xl sm:text-3xl font-bold text-stone-900 dark:text-stone-100 flex items-center justify-center gap-3">
                <Feather size={28} className="text-gold-500" />
                Konsultasi Sesepuh AI
              </h2>
              <p className="text-stone-500 dark:text-stone-400 text-sm mt-2">
-               Tanya jawab interaktif seputar Primbon, watak & jodoh dari pandangan AI ahli Primbon.
+               Tanya jawab interaktif seputar Primbon, watak & jodoh.
              </p>
-             {messages.length > 1 && (
-               <button 
-                 onClick={handleClearChat}
-                 className="mt-4 text-xs flex items-center gap-1 mx-auto text-stone-400 hover:text-red-400 transition-colors"
-               >
-                 <Trash2 size={14} /> Hapus Percakapan
-               </button>
-             )}
            </div>
 
-           <div className="space-y-4">
-              {messages.map(msg => (
+           <div className="space-y-8">
+              {messages.map((msg, index) => (
                 <motion.div 
                   initial={{ opacity: 0, y: 5 }} 
                   animate={{ opacity: 1, y: 0 }} 
                   key={msg.id} 
-                  className={cn("flex flex-col max-w-[85%] sm:max-w-[75%]", msg.role === 'user' ? "ml-auto items-end" : "mr-auto items-start")}
+                  ref={index === messages.length - 1 ? messagesEndRef : null}
+                  className={cn("flex flex-col w-full", msg.role === 'user' ? "items-end" : "items-start")}
                 >
-                  <div className="flex items-center gap-2 mb-1.5 px-1">
+                  <div className="flex items-center gap-2 mb-2 px-1">
                     {msg.role === 'assistant' ? (
                       <div className="flex items-center gap-1.5 text-gold-600 dark:text-gold-500 text-xs font-semibold tracking-wider uppercase">
                         <Feather size={12} /> Sesepuh AI
@@ -194,28 +204,45 @@ Selalu berikan nasehat spiritual Jawa yang menenangkan.`;
                   </div>
                   
                   <div className={cn(
-                    "p-4 rounded-2xl text-[15px] leading-relaxed", 
+                    "p-5 rounded-2xl text-[15px] leading-relaxed max-w-[90%] sm:max-w-[80%]", 
                     msg.role === "user" 
                       ? "bg-stone-800 dark:bg-stone-100 text-stone-50 dark:text-stone-900 rounded-tr-sm" 
                       : "bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 text-stone-800 dark:text-stone-200 rounded-tl-sm shadow-sm"
                   )}>
                     <div className={cn(
                       "prose prose-stone max-w-none",
-                      msg.role === 'user' 
-                        ? "prose-invert dark:prose-neutral" 
-                        : "dark:prose-invert"
+                      msg.role === 'user' ? "prose-invert dark:prose-neutral" : "dark:prose-invert"
                     )}>
                       <Markdown>{msg.text}</Markdown>
                     </div>
+
+                    {/* Per-message Utilities for Assistant Only */}
+                    {msg.role === 'assistant' && msg.id !== '1' && (
+                      <div className="mt-4 pt-3 border-t border-stone-100 dark:border-stone-800/50 flex items-center justify-end gap-3">
+                         <button 
+                            onClick={() => handleCopy(msg)}
+                            className="p-1 px-2 rounded-md hover:bg-stone-50 dark:hover:bg-stone-900 text-stone-400 hover:text-gold-600 transition-all flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider"
+                         >
+                            {copyStatus === msg.id ? <Check size={12} /> : <Copy size={12} />}
+                            {copyStatus === msg.id ? 'Tersalin' : 'Salin'}
+                         </button>
+                         <button 
+                            onClick={() => handleDownload(msg)}
+                            className="p-1 px-2 rounded-md hover:bg-stone-50 dark:hover:bg-stone-900 text-stone-400 hover:text-gold-600 transition-all flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider"
+                         >
+                            <Download size={12} /> Unduh
+                         </button>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               ))}
               {isLoading && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col max-w-[80%] mr-auto items-start">
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col mr-auto items-start">
                   <div className="flex items-center gap-1.5 text-gold-600/60 text-[10px] font-bold tracking-widest uppercase mb-1 px-1">
                     <Loader2 size={10} className="animate-spin" /> {loadingMessage}
                   </div>
-                  <div className="p-4 rounded-2xl bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-tl-sm shadow-sm font-sans">
+                  <div className="p-4 rounded-2xl bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-tl-sm shadow-sm">
                     <div className="flex gap-1">
                       <motion.span animate={{ opacity: [0, 1, 0] }} transition={{ repeat: Infinity, duration: 1 }} className="w-1.5 h-1.5 bg-gold-400 rounded-full" />
                       <motion.span animate={{ opacity: [0, 1, 0] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-1.5 h-1.5 bg-gold-400 rounded-full" />
@@ -224,16 +251,25 @@ Selalu berikan nasehat spiritual Jawa yang menenangkan.`;
                   </div>
                 </motion.div>
               )}
-              <div ref={messagesEndRef} className="h-4" />
+              <div className="h-4" />
            </div>
           </div>
         </section>
 
-       {/* Fixed Input Area (Lebar Penuh) */}
+       {/* Fixed Input Area */}
        <div className="fixed bottom-16 left-0 right-0 w-full bg-stone-100/95 dark:bg-stone-950/95 backdrop-blur-md border-t border-stone-200 dark:border-stone-800 px-4 py-3 sm:px-6 z-40 shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.1)]">
           <div className="max-w-3xl mx-auto w-full">
-             <form onSubmit={handleSend} className="relative flex items-center gap-2">
+             <form onSubmit={handleSend} className="relative flex items-center gap-3">
+               <button 
+                  type="button"
+                  onClick={handleClearChat}
+                  className="p-3 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-stone-400 hover:text-red-500 transition-all shadow-sm active:scale-95 shrink-0"
+                  title="Hapus Chat"
+               >
+                  <Trash2 size={20} />
+               </button>
                <textarea
+                 ref={inputRef}
                  value={input}
                  onChange={e => setInput(e.target.value)}
                  onKeyDown={e => {
@@ -242,14 +278,14 @@ Selalu berikan nasehat spiritual Jawa yang menenangkan.`;
                      handleSend();
                    }
                  }}
-                 placeholder="Tanya soal weton Rebo Wage..."
+                 placeholder="Tanya soal weton..."
                  className="flex-1 min-h-[52px] max-h-32 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3.5 text-stone-800 dark:text-stone-200 outline-none focus:ring-1 focus:ring-gold-500 shadow-sm resize-none scrollbar-hide text-sm"
                  rows={1}
                />
                <button 
                  type="submit" 
                  disabled={!input.trim() || isLoading}
-                 className="h-[52px] w-[52px] shrink-0 bg-gold-500 hover:bg-gold-600 dark:bg-gold-600 dark:hover:bg-gold-500 text-white rounded-xl flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                 className="h-[52px] w-[52px] shrink-0 bg-gold-500 hover:bg-gold-600 dark:bg-gold-600 dark:hover:bg-gold-500 text-white rounded-xl flex items-center justify-center transition-colors disabled:opacity-50 shadow-sm"
                >
                  <Send size={20} className="-ml-0.5" />
                </button>

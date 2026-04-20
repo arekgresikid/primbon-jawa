@@ -1,10 +1,13 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, X, Info, Search, Calendar as CalendarIcon } from 'lucide-react';
+import { 
+  ChevronLeft, ChevronRight, X, Info, Search, 
+  Calendar as CalendarIcon, Sparkles, Copy, Check, ArrowRight 
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { getWeton, getJavaneseDateLocal, getPranataMangsa } from '../lib/jawaMath';
 import { cn } from '../lib/utils';
 import { rajahs } from '../data/rajahData';
-import { Sparkles, Copy, Check, ArrowRight } from 'lucide-react';
+import { CloudMoon, Moon, Bell } from 'lucide-react';
 
 interface DayData {
   date: Date;
@@ -76,13 +79,16 @@ export function Calendar({ setTab }: { setTab?: (tab: any) => void }) {
       const pr = getPranataMangsa(d);
       const jowo = getJavaneseDateLocal(d);
       
-      const wetonStr = `${w.dina} ${w.pasaran}`.toLowerCase();
-      const wukuStr = w.wuku.toLowerCase();
       const monthStr = MONTHS[current.getMonth()].toLowerCase();
       const dateStr = `${current.getDate()} ${monthStr} ${year}`;
-      const searchStr = `${wetonStr} ${wukuStr} ${pr.name} ${jowo.month} ${dateStr} jumat kliwon selasa kliwon`.toLowerCase();
       
-      if (searchStr.includes(q)) {
+      // Combinations of possible search targets
+      const targets = [
+        w.dina, w.pasaran, w.wuku, pr.name, jowo.month, dateStr,
+        'jumat kliwon', 'selasa kliwon' // special mystical days
+      ];
+      
+      if (targets.some(t => t.toLowerCase().includes(q))) {
         d.setHours(0,0,0,0);
         results.push({
           date: d,
@@ -122,6 +128,9 @@ export function Calendar({ setTab }: { setTab?: (tab: any) => void }) {
 
   return (
     <section className="w-full max-w-5xl mx-auto pb-32 px-3 sm:px-6">
+      {/* Special Day Alert Banner */}
+      <SpecialDayAlert />
+
       {/* Header */}
       <header className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6 pt-2">
         <h2 className="text-xl sm:text-2xl font-semibold text-gold-500 tracking-tight flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
@@ -259,6 +268,55 @@ export function Calendar({ setTab }: { setTab?: (tab: any) => void }) {
         )}
       </AnimatePresence>
     </section>
+  );
+}
+
+function SpecialDayAlert() {
+  const today = useMemo(() => {
+    const d = new Date();
+    d.setHours(0,0,0,0);
+    return {
+      date: d,
+      weton: getWeton(d),
+      jowo: getJavaneseDateLocal(d)
+    };
+  }, []);
+
+  const specialDays = [
+    { dina: 'Jumat', pasaran: 'Kliwon', name: 'Jumat Kliwon', desc: 'Hari sakral untuk pembersihan batin dan ziarah.', icon: Moon },
+    { dina: 'Selasa', pasaran: 'Kliwon', name: 'Anggara Kasih', desc: 'Hari penuh kasih sayang dan penyelarasan energi semesta.', icon: CloudMoon },
+    { dina: 'Jumat', pasaran: 'Legi', name: 'Manisnya Jumat', desc: 'Hari baik untuk memulai usaha atau negosiasi.', icon: Sparkles },
+    { dina: 'Sabtu', pasaran: 'Pahing', name: 'Neptu Puncak', desc: 'Hari dengan energi kepemimpinan yang sangat kuat.', icon: Bell },
+  ];
+
+  const currentAlert = specialDays.find(d => 
+    today.weton.dina === d.dina && today.weton.pasaran === d.pasaran
+  );
+
+  if (!currentAlert) return null;
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="mb-6 relative overflow-hidden rounded-2xl bg-gradient-to-r from-stone-900 to-stone-800 dark:from-gold-600/20 dark:to-gold-900/20 p-5 text-white border border-stone-800 dark:border-gold-500/30 shadow-lg"
+    >
+      <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+        <currentAlert.icon size={80} />
+      </div>
+      <div className="relative flex items-center gap-4">
+        <div className="w-12 h-12 rounded-xl bg-gold-500/20 flex items-center justify-center text-gold-400 shrink-0 border border-gold-500/30">
+          <currentAlert.icon size={24} />
+        </div>
+        <div>
+          <h4 className="font-bold text-lg flex items-center gap-2">
+            Hari Raya: {currentAlert.name}
+            <span className="text-[10px] bg-red-500 text-white px-2 py-0.5 rounded-full uppercase tracking-widest font-black animate-pulse">Peringatan</span>
+          </h4>
+          <p className="text-sm text-stone-300 dark:text-stone-300/80 max-w-lg italic mt-0.5">{currentAlert.desc}</p>
+        </div>
+      </div>
+    </motion.div>
   );
 }
 

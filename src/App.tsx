@@ -1,11 +1,15 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { SEO } from './components/SEO';
 import { Footer } from './components/Footer';
-import { CalendarDays, BookOpen, MessageSquare, Quote, Star, Compass, Feather, Sun, Moon } from 'lucide-react';
+import { 
+  CalendarDays, BookOpen, MessageSquare, Quote, 
+  Compass, Feather, Sun, Moon, Sparkles, LayoutGrid, CloudMoon
+} from 'lucide-react';
 import { cn } from './lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 
-// Lazy loading for optimization
+type Tab = 'calendar' | 'weton' | 'aksara' | 'ai' | 'kompas' | 'cerita' | 'rajah' | 'mimpi';
+
 // Lazy loading for optimization
 const Calendar = lazy(() => import('./components/Calendar').then(m => ({ default: m.Calendar })));
 const RajahLibrary = lazy(() => import('./components/RajahLibrary').then(m => ({ default: m.RajahLibrary })));
@@ -15,6 +19,7 @@ const KonsultasiAI = lazy(() => import('./components/KonsultasiAI').then(m => ({
 const JawaEvents = lazy(() => import('./components/JawaEvents').then(m => ({ default: m.JawaEvents })));
 const FortuneCompass = lazy(() => import('./components/FortuneCompass').then(m => ({ default: m.FortuneCompass })));
 const MysticalStories = lazy(() => import('./components/MysticalStories').then(m => ({ default: m.MysticalStories })));
+const TafsirMimpi = lazy(() => import('./components/TafsirMimpi.tsx').then(m => ({ default: m.TafsirMimpi })));
 
 // Loading placeholder
 const NavLoading = () => (
@@ -25,7 +30,6 @@ const NavLoading = () => (
 );
 
 export default function App() {
-  type Tab = 'calendar' | 'weton' | 'aksara' | 'ai' | 'kompas' | 'cerita' | 'rajah';
   const [activeTab, setActiveTab] = useState<Tab>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('primbon-active-tab');
@@ -100,9 +104,39 @@ export default function App() {
            {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
          </button>
       </header>
+      
+      {/* Sub-header Menu (4-column Grid) */}
+      <nav className="sticky top-[60px] z-30 bg-stone-50/95 dark:bg-stone-950/95 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 transition-colors w-full">
+        <div className="max-w-3xl mx-auto p-2 grid grid-cols-4 gap-1.5">
+          {[
+            { id: 'calendar', label: 'Kalender', icon: CalendarDays },
+            { id: 'weton', label: 'Wetonku', icon: BookOpen },
+            { id: 'mimpi', label: 'Tafsir Mimpi', icon: CloudMoon },
+            { id: 'cerita', label: 'Cerita', icon: Feather },
+            { id: 'aksara', label: 'Aksara', icon: Quote },
+            { id: 'rajah', label: 'Pustaka Rajah', icon: Sparkles },
+            { id: 'kompas', label: 'Kompas', icon: Compass },
+            { id: 'ai', label: 'AI Sesepuh', icon: MessageSquare },
+          ].map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id as Tab)}
+              className={cn(
+                "flex flex-col items-center justify-center gap-1.5 py-2.5 px-1 rounded-xl transition-all border",
+                activeTab === item.id 
+                  ? "bg-gold-500/10 dark:bg-gold-500/20 text-gold-600 dark:text-gold-400 border-gold-500/30 shadow-[inset_0_0_12px_rgba(212,163,115,0.05)]" 
+                  : "bg-white/50 dark:bg-stone-900/50 text-stone-500 dark:text-stone-400 border-stone-100 dark:border-stone-800 hover:border-gold-200 dark:hover:border-gold-800"
+              )}
+            >
+              <item.icon size={16} className={activeTab === item.id ? "text-gold-600 dark:text-gold-500" : ""} />
+              <span className="text-[9px] font-bold uppercase tracking-tighter text-center leading-[1.1]">{item.label}</span>
+            </button>
+          ))}
+        </div>
+      </nav>
 
       {/* Main Content Area */}
-      <main className="flex-1 relative overflow-x-hidden flex flex-col pt-16 pb-20">
+      <main className="flex-1 relative overflow-x-hidden flex flex-col pt-4 pb-20">
         <AnimatePresence mode="wait">
           <Suspense fallback={<NavLoading />}>
             {activeTab === 'calendar' && (
@@ -140,6 +174,11 @@ export default function App() {
                 <AksaraConverter />
               </motion.div>
             )}
+            {activeTab === 'mimpi' && (
+              <motion.div className="flex-1 flex flex-col" key="mimpi" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
+                <TafsirMimpi />
+              </motion.div>
+            )}
           </Suspense>
         </AnimatePresence>
 
@@ -149,59 +188,25 @@ export default function App() {
       {/* Mobile Bottom Navigation */}
       <div className="fixed bottom-0 left-0 right-0 bg-stone-50/90 dark:bg-stone-950/90 backdrop-blur-md border-t border-stone-200 dark:border-stone-800 pb-[env(safe-area-inset-bottom)] z-50 shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.1)] dark:shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.5)] transition-colors">
          <div className="max-w-md mx-auto px-2 sm:px-6 h-16 flex justify-between items-center bg-transparent">
-            {/* Tanggalan */}
-            <button 
-              onClick={() => setActiveTab('calendar')}
-              className={cn("flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors px-1", activeTab === 'calendar' ? "text-gold-500" : "text-stone-500 hover:text-stone-800 dark:hover:text-stone-300")}
-            >
-              <CalendarDays size={18} strokeWidth={activeTab === 'calendar' ? 2.5 : 2} />
-              <span className="text-[9px] font-medium tracking-wide">Kalender</span>
-            </button>
-            
-            {/* Wetonku */}
-            <button 
-              onClick={() => setActiveTab('weton')}
-              className={cn("flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors px-1", activeTab === 'weton' ? "text-gold-500" : "text-stone-500 hover:text-stone-800 dark:hover:text-stone-300")}
-            >
-              <BookOpen size={18} strokeWidth={activeTab === 'weton' ? 2.5 : 2} />
-              <span className="text-[9px] font-medium tracking-wide">Wetonku</span>
-            </button>
-            
-            {/* Konsultasi AI */}
-            <button 
-              onClick={() => setActiveTab('ai')}
-              className={cn("flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors px-1", activeTab === 'ai' ? "text-gold-500 font-bold" : "text-stone-500 hover:text-stone-800 dark:hover:text-stone-300")}
-            >
-              <MessageSquare size={18} strokeWidth={activeTab === 'ai' ? 2.5 : 2} className={activeTab === 'ai' ? "drop-shadow-[0_0_8px_rgba(212,163,115,0.4)]" : ""} />
-              <span className="text-[9px] font-medium tracking-wide">Konsultasi</span>
-            </button>
-
-            {/* Kompas */}
-            <button 
-              onClick={() => setActiveTab('kompas')}
-              className={cn("flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors px-1", activeTab === 'kompas' ? "text-gold-500 font-bold" : "text-stone-500 hover:text-stone-800 dark:hover:text-stone-300")}
-            >
-              <Compass size={18} strokeWidth={activeTab === 'kompas' ? 2.5 : 2} className={activeTab === 'kompas' ? "drop-shadow-[0_0_8px_rgba(212,163,115,0.4)]" : ""} />
-              <span className="text-[9px] font-medium tracking-wide">Kompas</span>
-            </button>
-
-            {/* Cerita */}
-            <button 
-              onClick={() => setActiveTab('cerita')}
-              className={cn("flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors px-1", activeTab === 'cerita' ? "text-gold-500 font-bold" : "text-stone-500 hover:text-stone-800 dark:hover:text-stone-300")}
-            >
-              <Feather size={18} strokeWidth={activeTab === 'cerita' ? 2.5 : 2} className={activeTab === 'cerita' ? "drop-shadow-[0_0_8px_rgba(212,163,115,0.4)]" : ""} />
-              <span className="text-[9px] font-medium tracking-wide">Cerita</span>
-            </button>
-
-            {/* Aksara */}
-            <button 
-              onClick={() => setActiveTab('aksara')}
-              className={cn("flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors px-1", activeTab === 'aksara' ? "text-gold-500" : "text-stone-500 hover:text-stone-800 dark:hover:text-stone-300")}
-            >
-              <Quote size={18} strokeWidth={activeTab === 'aksara' ? 2.5 : 2} />
-              <span className="text-[9px] font-medium tracking-wide">Aksara</span>
-            </button>
+            {[
+              { id: 'calendar', label: 'Kalender', icon: CalendarDays },
+              { id: 'weton', label: 'Wetonku', icon: BookOpen },
+              { id: 'mimpi', label: 'Mimpi', icon: CloudMoon },
+              { id: 'ai', label: 'AI Sesepuh', icon: MessageSquare },
+              { id: 'kompas', label: 'Kompas', icon: Compass },
+            ].map((item) => (
+              <button 
+                key={item.id}
+                onClick={() => setActiveTab(item.id as Tab)}
+                className={cn(
+                  "flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors px-1", 
+                  activeTab === item.id ? "text-gold-500" : "text-stone-500 hover:text-stone-800 dark:hover:text-stone-300"
+                )}
+              >
+                <item.icon size={18} strokeWidth={activeTab === item.id ? 2.5 : 2} className={activeTab === item.id ? "drop-shadow-[0_0_8px_rgba(212,163,115,0.4)]" : ""} />
+                <span className="text-[9px] font-medium tracking-wide">{item.label}</span>
+              </button>
+            ))}
           </div>
         </div>
       </div>

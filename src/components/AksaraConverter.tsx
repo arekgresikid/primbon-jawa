@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { RefreshCw, ALargeSmall, Copy, Check, Type } from 'lucide-react';
 import { jawiToLatin, latinToJawi, latinToHanacaraka, hanacarakaToLatin } from '../lib/transliterate';
 import { cn } from '../lib/utils';
@@ -9,6 +9,20 @@ export function AksaraConverter() {
   const [aksaraText, setAksaraText] = useState(latinToHanacaraka('tahu bulat di goreng dadakan limaratusan'));
   const [activeSide, setActiveSide] = useState<'latin'|'aksara'>('latin');
   const [copied, setCopied] = useState(false);
+  const latinRef = useRef<HTMLTextAreaElement>(null);
+  const aksaraRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto-resize logic
+  useEffect(() => {
+    const adjustHeight = (ref: React.RefObject<HTMLTextAreaElement | null>) => {
+      if (ref.current) {
+        ref.current.style.height = 'auto';
+        ref.current.style.height = `${ref.current.scrollHeight}px`;
+      }
+    };
+    adjustHeight(latinRef);
+    adjustHeight(aksaraRef);
+  }, [latinText, aksaraText, mode]);
 
   const handleLatinChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setActiveSide('latin');
@@ -76,10 +90,11 @@ export function AksaraConverter() {
                {activeSide === 'latin' && <span className="w-2 h-2 rounded-full bg-gold-500 animate-pulse" />}
              </div>
              <textarea 
+               ref={latinRef}
                value={latinText}
                onChange={handleLatinChange}
                placeholder="Ketik di sini..."
-               className="w-full flex-1 min-h-[300px] bg-stone-50/50 dark:bg-stone-950/50 border border-stone-100 dark:border-stone-800 rounded-2xl p-5 text-stone-800 dark:text-stone-200 resize-none outline-none focus:border-gold-500/50 focus:ring-4 focus:ring-gold-500/5 transition-all leading-relaxed font-medium"
+               className="w-full flex-1 min-h-[200px] bg-stone-50/50 dark:bg-stone-950/50 border border-stone-100 dark:border-stone-800 rounded-2xl p-5 text-stone-800 dark:text-stone-200 resize-none outline-none focus:border-gold-500/50 focus:ring-4 focus:ring-gold-500/5 transition-all leading-relaxed font-medium"
              />
            </div>
 
@@ -100,11 +115,12 @@ export function AksaraConverter() {
                 </div>
              </div>
              <textarea 
+               ref={aksaraRef}
                dir={mode === 'jawi' ? 'rtl' : 'ltr'}
                value={aksaraText}
                onChange={handleAksaraChange}
                className={cn(
-                 "w-full flex-1 min-h-[300px] bg-white dark:bg-stone-950 border border-gold-100 dark:border-gold-900/20 rounded-2xl p-5 text-gold-600 dark:text-gold-400 leading-relaxed font-medium transition-all shadow-sm outline-none focus:ring-4 focus:ring-gold-500/5",
+                 "w-full flex-1 min-h-[200px] bg-white dark:bg-stone-950 border border-gold-100 dark:border-gold-900/20 rounded-2xl p-5 text-gold-600 dark:text-gold-400 leading-relaxed font-medium transition-all shadow-sm outline-none focus:ring-4 focus:ring-gold-500/5",
                  mode === 'hanacaraka' ? "text-4xl text-center" : "text-3xl"
                )}
              />

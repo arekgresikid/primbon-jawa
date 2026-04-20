@@ -12,6 +12,10 @@ export const BULAN_JAWA = [
   'Sura', 'Sapar', 'Mulud', 'Bakda Mulud', 'Jumadil Awal', 'Jumadil Akhir',
   'Rejeb', 'Ruwah', 'Pasa', 'Sawal', 'Sela', 'Besar'
 ];
+export const HIJRI_MONTHS = [
+  'Muharram', 'Safar', 'Rabi\'ul Awwal', 'Rabi\'ul Akhir', 'Jumadil Awwal', 'Jumadil Akhir',
+  'Rajab', 'Syaban', 'Ramadhan', 'Syawal', 'Dzulqa\'dah', 'Dzulhijjah'
+];
 
 export const DINA_NEPTU = [5, 4, 3, 7, 8, 6, 9];
 export const PASARAN_NEPTU = [5, 9, 7, 4, 8];
@@ -69,11 +73,6 @@ export function getJavaneseDateLocal(date: Date) {
     const dayStr = parts.find(p => p.type === 'day')?.value || '1';
     const monthStr = parts.find(p => p.type === 'month')?.value || '1';
     const yearStr = parts.find(p => p.type === 'year')?.value || '';
-    
-    const HIJRI_MONTHS = [
-      'Muharram', 'Safar', 'Rabi\'ul Awwal', 'Rabi\'ul Akhir', 'Jumadil Awwal', 'Jumadil Akhir',
-      'Rajab', 'Syaban', 'Ramadhan', 'Syawal', 'Dzulqa\'dah', 'Dzulhijjah'
-    ];
     
     // Some browsers return month as numbers
     let mIndex = parseInt(monthStr.replace(/\D/g, '')) - 1;
