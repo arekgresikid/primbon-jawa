@@ -11,17 +11,34 @@ interface ChatMessage {
 }
 
 export function KonsultasiAI() {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    const saved = localStorage.getItem('primbon_chat_history');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return [{
+          id: "1",
+          role: "assistant",
+          text: "Halo, salam sejahtera. Saya adalah Asisten AI ahli Primbon. Silakan tanyakan hal-hal seputar Weton, Watak, Kecocokan Jodoh, atau penanggalan secara umum. Ada yang bisa saya bantu hari ini?"
+        }];
+      }
+    }
+    return [{
       id: "1",
       role: "assistant",
       text: "Halo, salam sejahtera. Saya adalah Asisten AI ahli Primbon. Silakan tanyakan hal-hal seputar Weton, Watak, Kecocokan Jodoh, atau penanggalan secara umum. Ada yang bisa saya bantu hari ini?"
-    }
-  ]);
+    }];
+  });
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("Sesepuh sedang bersemedi...");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Save messages to local storage
+  useEffect(() => {
+    localStorage.setItem('primbon_chat_history', JSON.stringify(messages));
+  }, [messages]);
 
   const mysticalMessages = [
     "Sesepuh sedang bersemedi...",
@@ -56,6 +73,7 @@ export function KonsultasiAI() {
         role: "assistant",
         text: "Halo, salam sejahtera. Saya adalah Asisten AI ahli Primbon. Silakan tanyakan hal-hal seputar Weton, Watak, Kecocokan Jodoh, atau penanggalan secara umum. Ada yang bisa saya bantu hari ini?"
       }]);
+      localStorage.removeItem('primbon_chat_history');
     }
   };
 
@@ -215,19 +233,18 @@ Selalu berikan nasehat spiritual Jawa yang menenangkan.`;
        <div className="fixed bottom-16 left-0 right-0 w-full bg-stone-100/95 dark:bg-stone-950/95 backdrop-blur-md border-t border-stone-200 dark:border-stone-800 px-4 py-3 sm:px-6 z-40 shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.1)]">
           <div className="max-w-3xl mx-auto w-full">
              <form onSubmit={handleSend} className="relative flex items-center gap-2">
-               <input
-                 type="text"
+               <textarea
                  value={input}
                  onChange={e => setInput(e.target.value)}
                  onKeyDown={e => {
-                   if (e.key === 'Enter') {
+                   if (e.key === 'Enter' && !e.shiftKey) {
                      e.preventDefault();
                      handleSend();
                    }
                  }}
                  placeholder="Tanya soal weton Rebo Wage..."
-                 className="flex-1 h-[52px] bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl px-4 text-stone-800 dark:text-stone-200 outline-none focus:ring-1 focus:ring-gold-500 shadow-sm"
-                 autoComplete="off"
+                 className="flex-1 min-h-[52px] max-h-32 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3.5 text-stone-800 dark:text-stone-200 outline-none focus:ring-1 focus:ring-gold-500 shadow-sm resize-none scrollbar-hide text-sm"
+                 rows={1}
                />
                <button 
                  type="submit" 

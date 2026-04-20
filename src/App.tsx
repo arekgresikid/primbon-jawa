@@ -23,7 +23,14 @@ const NavLoading = () => (
 
 export default function App() {
   type Tab = 'calendar' | 'weton' | 'aksara' | 'ai' | 'kompas' | 'cerita';
-  const [activeTab, setActiveTab] = useState<Tab>('calendar');
+  const [activeTab, setActiveTab] = useState<Tab>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('primbon-active-tab');
+      return (saved as Tab) || 'calendar';
+    }
+    return 'calendar';
+  });
+
   const [isDarkMode, setIsDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('primbon-theme');
@@ -32,6 +39,11 @@ export default function App() {
     }
     return true;
   });
+
+  // Save active tab
+  useEffect(() => {
+    localStorage.setItem('primbon-active-tab', activeTab);
+  }, [activeTab]);
 
   useEffect(() => {
     if (isDarkMode) {
