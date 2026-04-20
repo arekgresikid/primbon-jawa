@@ -40,6 +40,21 @@ export function KonsultasiAI() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
 
+  // Check for pending questions from other components
+  useEffect(() => {
+    const pendingQuestion = localStorage.getItem('primbon_ai_pending_question');
+    if (pendingQuestion) {
+      setInput(pendingQuestion);
+      localStorage.removeItem('primbon_ai_pending_question');
+      
+      // Auto-send after a short delay to allow UI to settle
+      const timer = setTimeout(() => {
+        handleSend();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
   // Auto-resize chat input
   useEffect(() => {
     if (inputRef.current) {

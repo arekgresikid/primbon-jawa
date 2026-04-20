@@ -326,3 +326,88 @@ export function getJavaneseEvents(year: number) {
 
   return events;
 }
+
+export function getPalSrigati(neptu: number) {
+  // Matrix Pal Srigati (Betaljemur Adammakna)
+  // Rows: Neptu 7 through 18
+  // Columns: Ages 0-6, 7-12, 13-18, 19-24, 25-30, 31-36, 37-42, 43-48, 49-54, 55-60, 60+
+  const matrix: Record<number, number[]> = {
+    7:  [5, 2, 4, 7, 1, 6, 9, 3, 5, 2, 4],
+    8:  [2, 4, 7, 1, 6, 9, 3, 5, 2, 4, 7],
+    9:  [4, 7, 1, 6, 9, 3, 5, 2, 4, 7, 1],
+    10: [7, 1, 6, 9, 3, 5, 2, 4, 7, 1, 6],
+    11: [1, 6, 9, 3, 5, 2, 4, 7, 1, 6, 9],
+    12: [6, 9, 3, 5, 2, 4, 7, 1, 6, 9, 3],
+    13: [9, 3, 5, 2, 4, 7, 1, 6, 9, 3, 5],
+    14: [3, 5, 2, 4, 7, 1, 6, 9, 3, 5, 2],
+    15: [5, 2, 4, 7, 1, 6, 9, 3, 5, 2, 4],
+    16: [2, 4, 7, 1, 6, 9, 3, 5, 2, 4, 7],
+    17: [4, 7, 1, 6, 9, 3, 5, 2, 4, 7, 1],
+    18: [7, 1, 6, 9, 3, 5, 2, 4, 7, 1, 6],
+  };
+
+  const values = matrix[neptu] || matrix[7];
+  const labels = ['0-6', '7-12', '13-18', '19-24', '25-30', '31-36', '37-42', '43-48', '49-54', '55-60', '60+'];
+  
+  return labels.map((label, i) => ({
+    age: label,
+    value: values[i]
+  }));
+}
+
+export function getNagaHari(date: Date) {
+  const dinaIdx = date.getDay();
+  // Naga Dino logic
+  const directions = [
+    'Barat Laut (Menghadap Barat)', // Minggu
+    'Timur (Menghadap Selatan)',    // Senin
+    'Selatan (Menghadap Barat)',    // Selasa
+    'Utara (Menghadap Timur)',      // Rabu
+    'Timur Laut (Menghadap Utara)', // Kamis
+    'Barat Daya (Menghadap Timur)', // Jumat
+    'Barat (Menghadap Selatan)'      // Sabtu
+  ];
+  return directions[dinaIdx];
+}
+
+export function getKedutanList() {
+  return [
+    { point: 'Kepala (Seluruhnya)', meaning: 'Akan mendapat kebahagiaan atau rejeki besar.', category: 'Kepala' },
+    { point: 'Ubun-ubun', meaning: 'Akan mendapat pangkat atau kedudukan.', category: 'Kepala' },
+    { point: 'Dahi Kanan', meaning: 'Akan mendapat harta atau kekayaan.', category: 'Kepala' },
+    { point: 'Dahi Kiri', meaning: 'Akan mendapat kesenangan hati.', category: 'Kepala' },
+    { point: 'Alis Kanan', meaning: 'Akan bertemu kekasih atau orang tercinta.', category: 'Kepala' },
+    { point: 'Alis Kiri', meaning: 'Akan mendapat berita baik atau keuntungan.', category: 'Kepala' },
+    { point: 'Kelopak Mata Kanan Atas', meaning: 'Akan mendapat keuntungan atau rejeki halalan thoyyibah.', category: 'Mata' },
+    { point: 'Kelopak Mata Kanan Bawah', meaning: 'Akan bersedih atau mengalami duka.', category: 'Mata' },
+    { point: 'Kelopak Mata Kiri Atas', meaning: 'Akan mendapat kebaikan atau bertemu kerabat jauh.', category: 'Mata' },
+    { point: 'Kelopak Mata Kiri Bawah', meaning: 'Akan sakit atau kehilangan sesuatu.', category: 'Mata' },
+    { point: 'Telinga Kanan', meaning: 'Akan mendengar kabar baik.', category: 'Kepala' },
+    { point: 'Telinga Kiri', meaning: 'Akan mendapat rintangan atau kabar buruk.', category: 'Kepala' },
+    { point: 'Pipi Kanan', meaning: 'Akan mendapat rejeki yang tidak disangka.', category: 'Wajah' },
+    { point: 'Pipi Kiri', meaning: 'Akan mengalami sakit atau kesedihan.', category: 'Wajah' },
+    { point: 'Bibir Atas', meaning: 'Akan mendapat makan enak atau traktiran.', category: 'Wajah' },
+    { point: 'Bibir Bawah', meaning: 'Akan berdebat atau berselisih paham.', category: 'Wajah' },
+    { point: 'Bahu Kanan', meaning: 'Akan mendapat beban atau tanggung jawab baru.', category: 'Badan' },
+    { point: 'Bahu Kiri', meaning: 'Akan mendapat kemuliaan atau dihormati.', category: 'Badan' },
+    { point: 'Telapak Tangan Kanan', meaning: 'Akan menerima uang atau rejeki tunai.', category: 'Tangan' },
+    { point: 'Telapak Tangan Kiri', meaning: 'Akan mengeluarkan uang untuk kebutuhan besar.', category: 'Tangan' },
+    { point: 'Pusar', meaning: 'Akan mendapat anugerah atau anak.', category: 'Badan' },
+    { point: 'Paha Kanan', meaning: 'Akan melakukan perjalanan jauh.', category: 'Kaki' },
+    { point: 'Paha Kiri', meaning: 'Akan mendapat tamu atau sahabat lama.', category: 'Kaki' },
+    { point: 'Betis Kanan', meaning: 'Akan mendapat pujian atau kehormatan.', category: 'Kaki' },
+    { point: 'Betis Kiri', meaning: 'Akan berselisih dengan teman.', category: 'Kaki' },
+    { point: 'Telapak Kaki Kanan', meaning: 'Akan pergi merantau atau bepergian.', category: 'Kaki' },
+    { point: 'Telapak Kaki Kiri', meaning: 'Akan mendapat kemudahan dalam urusan.', category: 'Kaki' }
+  ];
+}
+
+export function getHajatHarian(neptu: number) {
+  // Simplified logic for daily activities
+  const indicators = [
+    { type: 'Pernikahan', status: neptu > 12 ? 'Sangat Baik' : 'Cukup Baik', desc: 'Perlu memperhatikan bulan Sangar.' },
+    { type: 'Pindah Rumah', status: neptu % 4 === 1 || neptu % 4 === 2 ? 'Baik' : 'Kurang Baik', desc: 'Cari hari Guru atau Ratu.' },
+    { type: 'Hajat Besar', status: neptu % 5 === 2 || neptu % 5 === 3 ? 'Unggul' : 'Sedang', desc: 'Manfaatkan jam rejeki.' }
+  ];
+  return indicators;
+}

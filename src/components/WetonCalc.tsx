@@ -7,12 +7,14 @@ import { motion, AnimatePresence } from 'motion/react';
 import { RadarChart } from './RadarChart';
 import { FortuneCompass } from './FortuneCompass';
 import { WetonCircle } from './WetonCircle';
+import { PalSrigati } from './PalSrigati';
+import { getNagaHari, getHajatHarian } from '../lib/jawaMath';
 
 export function WetonCalc() {
   const cardRef = useRef<HTMLElement>(null);
   const [isCapturing, setIsCapturing] = useState(false);
   const [captureStatus, setCaptureStatus] = useState<'idle' | 'success' | 'error'>('idle');
-  const [tab, setTab] = useState<'pribadi' | 'bisnis' | 'jodoh'>('pribadi');
+  const [tab, setTab] = useState<'pribadi' | 'bisnis' | 'jodoh' | 'hajat'>('pribadi');
   const [date1, setDate1] = useState('');
   const [date2, setDate2] = useState('');
   const [showLoveMeter, setShowLoveMeter] = useState(false);
@@ -80,6 +82,8 @@ export function WetonCalc() {
         hours = getAuspiciousHours(new Date().getDay());
       }
     }
+
+    const nagaHari = date1 ? getNagaHari(new Date(date1)) : null;
 
     return (
       <div className="space-y-6">
@@ -250,6 +254,21 @@ export function WetonCalc() {
                         </div>
                       ))}
                    </div>
+                </div>
+
+                {/* Pal Srigati Graph */}
+                <div className="border-t border-stone-100 dark:border-stone-800 p-6">
+                  <PalSrigati neptu={result.weton.neptu} />
+                </div>
+
+                {/* Naga Hari Section */}
+                <div className="border-t border-stone-100 dark:border-stone-800 p-6 bg-stone-900 dark:bg-stone-950 text-white relative overflow-hidden">
+                  <div className="absolute right-0 top-0 p-4 opacity-10 rotate-12"><Compass size={80} /></div>
+                  <h4 className="text-xs font-bold text-gold-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                    <AlertTriangle size={14} /> Pantangan Naga Hari
+                  </h4>
+                  <p className="text-sm font-medium mb-1">Hari ini Naga berada di: <span className="text-gold-400">{nagaHari}</span></p>
+                  <p className="text-[10px] text-stone-400 italic leading-tight">"Hindari berjalan ke arah tersebut untuk urusan penting agar tidak menemui kesialan atau rintangan berat."</p>
                 </div>
               </article>
             </motion.div>
@@ -475,6 +494,64 @@ export function WetonCalc() {
     );
   }
 
+  const renderHajat = () => {
+    let hajat = null;
+    if (date1) {
+      const d = new Date(date1);
+      const weton = getWeton(d);
+      hajat = getHajatHarian(weton.neptu);
+    }
+
+    return (
+      <div className="space-y-6">
+        <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-5 rounded-xl shadow-sm">
+          <label className="block text-sm font-medium text-stone-600 dark:text-stone-400 mb-2">Pilih Tanggal Acara / Kelahiran</label>
+          <input 
+            type="date"
+            value={date1}
+            onChange={e => setDate1(e.target.value)}
+            className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-3 text-stone-900 dark:text-stone-200 outline-none focus:border-gold-500 transition-all"
+          />
+        </div>
+
+        <AnimatePresence>
+          {hajat && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid gap-4">
+              {hajat.map((h, i) => (
+                <div key={i} className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl p-5 flex items-center gap-4">
+                  <div className={cn(
+                    "w-12 h-12 rounded-full flex items-center justify-center shrink-0 border",
+                    h.status === 'Sangat Baik' || h.status === 'Unggul' ? "bg-green-50 border-green-200 text-green-600" : "bg-stone-50 border-stone-200 text-stone-600"
+                  )}>
+                    <Sparkles size={20} />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h4 className="font-bold text-stone-800 dark:text-stone-200">{h.type}</h4>
+                      <span className={cn(
+                        "text-[10px] font-bold px-2 py-0.5 rounded-full uppercase",
+                        h.status === 'Sangat Baik' || h.status === 'Unggul' ? "bg-green-500 text-white" : "bg-stone-200 dark:bg-stone-800 text-stone-600 dark:text-stone-400"
+                      )}>{h.status}</span>
+                    </div>
+                    <p className="text-xs text-stone-500 dark:text-stone-400">{h.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div className="bg-stone-900 text-white p-6 rounded-2xl relative overflow-hidden">
+           <Zap className="absolute -right-4 -top-4 opacity-10" size={100} />
+           <h4 className="text-gold-500 font-bold text-sm uppercase tracking-widest mb-3">Pesan Bijak</h4>
+           <p className="text-xs text-stone-300 leading-relaxed italic">
+             "Perhitungan hari hanyalah ikhtiar batin manusia untuk menyelaraskan diri dengan alam. Kunci utama keberhasilan tetaplah doa, usaha, dan tawakal kepada Sang Khaliq."
+           </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-2xl mx-auto pb-32 px-4 sm:px-6 pt-6 sm:pt-10">
        <div className="mb-8 text-center space-y-2">
@@ -504,15 +581,21 @@ export function WetonCalc() {
           >
             Ramalan Jodoh
           </button>
+          <button 
+            onClick={() => setTab('hajat')} 
+            className={cn("flex-1 py-3 sm:py-2.5 text-xs sm:text-sm font-medium rounded-md transition-all relative z-10", tab === 'hajat' ? "text-stone-950" : "text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200")}
+          >
+            Hajat & Acara
+          </button>
           <div className={cn(
-             "absolute top-1 bottom-1 w-[calc(33.33%-4px)] bg-gold-400 dark:bg-gold-500 rounded-md transition-all duration-300 ease-out shadow-sm", 
-             tab === 'pribadi' ? "left-1" : tab === 'bisnis' ? "left-[calc(33.33%+2px)]" : "left-[calc(66.66%+2px)]"
+             "absolute top-1 bottom-1 w-[calc(25%-4px)] bg-gold-400 dark:bg-gold-500 rounded-md transition-all duration-300 ease-out shadow-sm", 
+             tab === 'pribadi' ? "left-1" : tab === 'bisnis' ? "left-[calc(25%+1px)]" : tab === 'jodoh' ? "left-[calc(50%+1px)]" : "left-[calc(75%+1px)]"
           )} />
        </div>
 
        <AnimatePresence mode="wait">
           <motion.div key={tab} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.2 }}>
-            {tab === 'pribadi' ? renderPribadi() : tab === 'bisnis' ? renderBisnis() : renderJodoh()}
+            {tab === 'pribadi' ? renderPribadi() : tab === 'bisnis' ? renderBisnis() : tab === 'jodoh' ? renderJodoh() : renderHajat()}
           </motion.div>
        </AnimatePresence>
     </div>

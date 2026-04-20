@@ -3,12 +3,12 @@ import { SEO } from './components/SEO';
 import { Footer } from './components/Footer';
 import { 
   CalendarDays, BookOpen, MessageSquare, Quote, 
-  Compass, Feather, Sun, Moon, Sparkles, LayoutGrid, CloudMoon
+  Compass, Feather, Sun, Moon, Sparkles, LayoutGrid, CloudMoon, Zap
 } from 'lucide-react';
 import { cn } from './lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 
-type Tab = 'calendar' | 'weton' | 'aksara' | 'ai' | 'kompas' | 'cerita' | 'rajah' | 'mimpi';
+type Tab = 'calendar' | 'weton' | 'aksara' | 'ai' | 'kompas' | 'cerita' | 'rajah' | 'mimpi' | 'kedutan';
 
 // Lazy loading for optimization
 const Calendar = lazy(() => import('./components/Calendar').then(m => ({ default: m.Calendar })));
@@ -20,6 +20,7 @@ const JawaEvents = lazy(() => import('./components/JawaEvents').then(m => ({ def
 const FortuneCompass = lazy(() => import('./components/FortuneCompass').then(m => ({ default: m.FortuneCompass })));
 const MysticalStories = lazy(() => import('./components/MysticalStories').then(m => ({ default: m.MysticalStories })));
 const TafsirMimpi = lazy(() => import('./components/TafsirMimpi.tsx').then(m => ({ default: m.TafsirMimpi })));
+const KedutanFirasat = lazy(() => import('./components/KedutanFirasat').then(m => ({ default: m.KedutanFirasat })));
 
 // Loading placeholder
 const NavLoading = () => (
@@ -116,6 +117,7 @@ export default function App() {
             { id: 'aksara', label: 'Aksara', icon: Quote },
             { id: 'rajah', label: 'Pustaka Rajah', icon: Sparkles },
             { id: 'kompas', label: 'Kompas', icon: Compass },
+            { id: 'kedutan', label: 'Kedutan', icon: Zap },
             { id: 'ai', label: 'AI Sesepuh', icon: MessageSquare },
           ].map((item) => (
             <button
@@ -177,6 +179,11 @@ export default function App() {
             {activeTab === 'mimpi' && (
               <motion.div className="flex-1 flex flex-col" key="mimpi" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
                 <TafsirMimpi />
+              </motion.div>
+            )}
+            {activeTab === 'kedutan' && (
+              <motion.div className="flex-1 flex flex-col" key="kedutan" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
+                <KedutanFirasat setActiveTab={setActiveTab} />
               </motion.div>
             )}
           </Suspense>
