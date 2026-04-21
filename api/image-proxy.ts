@@ -1,13 +1,30 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // Set CORS headers
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+  );
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   try {
     const mySecretKey = (process.env.POLLINATION_API_KEY || "").replace(/['"]+/g, '').trim();
     const clientToken = req.query.access_token ? String(req.query.access_token) : "";
-    const serverToken = (process.env.STUDIO_ACCESS_TOKEN || "SESEPUH_AI").replace(/['"]+/g, '').trim();
+    const serverToken = (process.env.STUDIO_ACCESS_TOKEN || "").replace(/['"]+/g, '').trim();
 
     // 1. Security Check
-    if (clientToken !== serverToken) {
+    if (!serverToken) {
+      return res.status(500).json({ error: "Server configuration (STUDIO_ACCESS_TOKEN) missing." });
+    }
+
+    if (clientToken.toUpperCase() !== serverToken.toUpperCase()) {
       return res.status(403).json({ error: "Unauthorized: Invalid access token." });
     }
 
