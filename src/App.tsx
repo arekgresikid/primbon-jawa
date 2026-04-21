@@ -255,6 +255,12 @@ function StudioPage() {
         body: JSON.stringify({ code: accessCode })
       });
       
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await response.text();
+        throw new Error(`Server returned non-JSON response (Status: ${response.status}).`);
+      }
+
       const data = await response.json();
       
       if (data.success) {
@@ -263,11 +269,11 @@ function StudioPage() {
         localStorage.setItem('studio_access_token', data.token);
         setShowCodeInput(false);
       } else {
-        alert(`Kode akses salah (Status: ${response.status}). Pesan: ${data.error || 'Unknown'}`);
+        alert(`Kode akses salah. (Pesan: ${data.error || 'Invalid'})`);
         setAccessCode("");
       }
     } catch (err) {
-      alert(`Gagal menghubungi server keamanan. Detail: ${err instanceof Error ? err.message : 'Unknown Error'}`);
+      alert(`Kendala akses: ${err instanceof Error ? err.message : 'Unknown Error'}`);
     }
   };
 
