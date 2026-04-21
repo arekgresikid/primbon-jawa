@@ -31,3 +31,11 @@ body {
   @apply bg-stone-400 dark:bg-stone-600;
 }
 
+button, a, [role="button"] {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
