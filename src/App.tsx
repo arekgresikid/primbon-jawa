@@ -263,11 +263,11 @@ function StudioPage() {
         localStorage.setItem('studio_access_token', data.token);
         setShowCodeInput(false);
       } else {
-        alert("Kode akses salah. Silakan hubungi pengembang.");
+        alert(`Kode akses salah (Status: ${response.status}). Pesan: ${data.error || 'Unknown'}`);
         setAccessCode("");
       }
     } catch (err) {
-      alert("Gagal menghubungi server keamanan.");
+      alert(`Gagal menghubungi server keamanan. Detail: ${err instanceof Error ? err.message : 'Unknown Error'}`);
     }
   };
 
