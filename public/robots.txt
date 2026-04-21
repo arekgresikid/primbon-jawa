@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://jawidigital.my.id/sitemap.xml
+Sitemap: https://www.jawidigital.my.id/sitemap.xml

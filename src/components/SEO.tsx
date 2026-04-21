@@ -44,7 +44,7 @@ export function SEO({
       el.setAttribute('content', content);
     };
 
-    const BASE_URL = 'https://jawidigital.my.id';
+    const BASE_URL = 'https://www.jawidigital.my.id';
 
     updateOG('og:title', title);
     updateOG('og:description', description);

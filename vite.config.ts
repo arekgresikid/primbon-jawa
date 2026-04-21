@@ -12,7 +12,7 @@ export default defineConfig(({mode}) => {
       tailwindcss(),
       VitePWA({
         registerType: 'autoUpdate',
-        includeAssets: ['favicon.png', 'og-image.png', 'robots.txt'],
+        includeAssets: ['favicon.png', 'og-image.png', 'robots.txt', 'sitemap.xml'],
         manifest: {
           name: 'Primbon Jawa Modern',
           short_name: 'Primbon',
@@ -28,6 +28,9 @@ export default defineConfig(({mode}) => {
               purpose: 'any maskable'
             }
           ]
+        },
+        workbox: {
+          navigateFallbackDenylist: [/^\/sitemap\.xml$/, /^\/robots\.txt$/],
         }
       })
     ],
