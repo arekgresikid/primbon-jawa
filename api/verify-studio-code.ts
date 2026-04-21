@@ -20,10 +20,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const code = req.body?.code;
-    const serverToken = (process.env.STUDIO_ACCESS_TOKEN || "SESEPUH_AI").replace(/['"]+/g, '').trim();
+    const serverToken = (process.env.STUDIO_ACCESS_TOKEN || "").replace(/['"]+/g, '').trim();
+
+    if (!serverToken) {
+      return res.status(500).json({ success: false, error: "Server configuration missing." });
+    }
 
     if (!code) {
-      return res.status(400).json({ success: false, error: "Code is required in request body" });
+      return res.status(400).json({ success: false, error: "Code is required." });
     }
 
     const cleanCode = String(code).replace(/['"]+/g, '').trim().toUpperCase();
@@ -38,7 +42,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     return res.status(401).json({ 
       success: false, 
-      error: `Invalid code. Expected ${cleanServerToken.substring(0, 3)}...` 
+      error: "Invalid access code." 
     });
 
   } catch (error: any) {

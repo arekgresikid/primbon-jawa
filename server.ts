@@ -85,7 +85,12 @@ async function startServer() {
       const clientToken = req.query.access_token ? String(req.query.access_token) : "";
 
       // Validasi Token Keamanan Server-Side dari Environment Variable
-      const SERVER_INTERNAL_TOKEN = (process.env.STUDIO_ACCESS_TOKEN || "SESEPUH_AI").replace(/['"]+/g, '').trim(); 
+      const SERVER_INTERNAL_TOKEN = (process.env.STUDIO_ACCESS_TOKEN || "").replace(/['"]+/g, '').trim(); 
+      
+      if (!SERVER_INTERNAL_TOKEN) {
+        logToFile("Error: STUDIO_ACCESS_TOKEN tidak dikonfigurasi di server.");
+        return res.status(500).json({ error: "Konfigurasi server tidak lengkap." });
+      }
 
       if (clientToken !== SERVER_INTERNAL_TOKEN) {
         logToFile(`Unauthorized access attempt from client with token: ${clientToken}`);
