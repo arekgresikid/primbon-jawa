@@ -78,42 +78,62 @@ async function startServer() {
   // ========================================== //
   app.get("/api/image-proxy", aiRateLimiter, async (req, res) => {
     try {
-      // Ambil parameter dan pastikan tipe datanya benar
-      let prompt = req.query.prompt ? String(req.query.prompt) : "";
-      // Pollinations AI membatasi seed maksimal 2147483647 (32-bit signed integer)
-      let seedQuery = req.query.seed ? parseInt(String(req.query.seed)) : Math.floor(Math.random() * 1000000);
-      let seed = seedQuery % 2147483647; 
-      let model = req.query.model ? String(req.query.model) : "zimage";
+      // 1. Get basic parameters
+      const prompt = req.query.prompt ? String(req.query.prompt) : "";
+      const model = req.query.model ? String(req.query.model) : "zimage";
+      const mySecretKey = (process.env.POLLINATION_API_KEY || "").replace(/['"]+/g, '').trim();
+      const clientToken = req.query.access_token ? String(req.query.access_token) : "";
 
-      // Ambil key dan bersihkan dari tanda kutip jika ada
-      let mySecretKey = (process.env.POLLINATION_API_KEY || "").replace(/['"]+/g, '').trim();
+      // Validasi Token Keamanan Server-Side dari Environment Variable
+      const SERVER_INTERNAL_TOKEN = (process.env.STUDIO_ACCESS_TOKEN || "SESEPUH_AI").replace(/['"]+/g, '').trim(); 
+
+      if (clientToken !== SERVER_INTERNAL_TOKEN) {
+        logToFile(`Unauthorized access attempt from client with token: ${clientToken}`);
+        return res.status(403).json({ error: "Akses ditolak. Token tidak valid." });
+      }
 
       if (!prompt) {
         logToFile("Error: Prompt kosong.");
         return res.status(400).json({ error: "Prompt is required" });
       }
 
-      logToFile(`Processing image - Prompt: "${prompt.substring(0, 50)}..." | Model: ${model} | Seed: ${seed}`);
+      // 2. Get advanced parameters
+      const width = req.query.width ? parseInt(String(req.query.width)) : 1024;
+      const height = req.query.height ? parseInt(String(req.query.height)) : 1024;
+      const seed = req.query.seed ? parseInt(String(req.query.seed)) : Math.floor(Math.random() * 2147483647);
+      const enhance = req.query.enhance === 'false' ? 'false' : 'true';
+      const safe = req.query.safe === 'false' ? 'false' : 'true';
+      const quality = req.query.quality ? String(req.query.quality) : 'high';
+      const transparent = req.query.transparent === 'true' ? 'true' : 'false';
+      const nologo = req.query.nologo === 'true' ? 'true' : 'false';
+      const negative_prompt = req.query.negative_prompt ? String(req.query.negative_prompt) : '';
+      const image = req.query.image ? String(req.query.image) : '';
+      
+      // Video specific parameters
+      const duration = req.query.duration ? String(req.query.duration) : '';
+      const audio = req.query.audio === 'true' ? 'true' : 'false';
+      const videoAspectRatio = req.query.videoAspectRatio ? String(req.query.videoAspectRatio) : '';
 
-      // Gunakan URL gen.pollinations.ai sesuai dokumentasi
-      // Prompt di-encode di sini
+      logToFile(`Processing media - Prompt: "${prompt.substring(0, 50)}..." | Model: ${model} | Dimensions: ${width}x${height} | Seed: ${seed}`);
+
+      // 3. Build Pollinations URL
       const encodedPrompt = encodeURIComponent(prompt.trim());
+      let url = `https://gen.pollinations.ai/image/${encodedPrompt}?model=${model}&width=${width}&height=${height}&seed=${seed}&enhance=${enhance}&safe=${safe}&quality=${quality}&transparent=${transparent}`;
       
-      // Upgrade ke High Quality (HD Landscape 1280x720) dan Aktifkan Enhance
-      const width = 1280;
-      const height = 720;
-      let url = `https://gen.pollinations.ai/image/${encodedPrompt}?model=${model}&width=${width}&height=${height}&seed=${seed}&enhance=true&safe=true&quality=high`;
+      if (negative_prompt) url += `&negative_prompt=${encodeURIComponent(negative_prompt)}`;
+      if (image) url += `&image=${encodeURIComponent(image)}`;
+      if (nologo === 'true') url += `&nologo=true`;
+      if (duration) url += `&duration=${duration}`;
+      if (audio === 'true') url += `&audio=true`;
+      if (videoAspectRatio) url += `&aspectRatio=${videoAspectRatio}`;
       
-      // Tambahkan key jika tersedia
       if (mySecretKey && mySecretKey.length > 5) {
         url += `&key=${mySecretKey}`;
-        logToFile("Using API Key in query parameter.");
-      } else {
-        logToFile("Warning: No API Key found, using public access.");
       }
 
       logToFile(`Final Fetch URL: ${url.replace(mySecretKey, '***')}`);
 
+      // 4. Fetch from Pollinations
       const response = await fetch(url);
 
       if (!response.ok) {
@@ -205,6 +225,16 @@ async function startServer() {
       logToFile(`Chat Error: ${error.message}`);
       res.status(500).json({ error: "Terjadi gangguan pada layanan konsultasi." });
     }
+  });
+
+  app.post("/api/verify-studio-code", (req, res) => {
+    const { code } = req.body;
+    const SERVER_INTERNAL_TOKEN = (process.env.STUDIO_ACCESS_TOKEN || "SESEPUH_AI").replace(/['"]+/g, '').trim();
+    
+    if (code && code.toUpperCase() === SERVER_INTERNAL_TOKEN.toUpperCase()) {
+      return res.json({ success: true, token: SERVER_INTERNAL_TOKEN });
+    }
+    res.status(401).json({ success: false, error: "Invalid code" });
   });
 
   if (process.env.NODE_ENV !== "production") {
