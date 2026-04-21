@@ -7,9 +7,9 @@ interface SEOProps {
 }
 
 export function SEO({ 
-  title = "Primbon Jawa Modern | Kalender & Weton Digital", 
-  description = "Aplikasi Primbon Jawa modern dengan kalender Jawa, hitung weton, konverter aksara, dan ramalan AI.",
-  keywords = "primbon jawa, cek weton, ramalan jodoh, kalender jawa, penanggalan jawa, sesepuh ai, bot primbon, Primbon jodoh, Primbon Jawa Lengkap, Primbon tanggal lahir, Primbon Jawa Kuno, Primbon weton, Primbon Jawa lengkap rejeki, Primbon rejeki, Primbon watak"
+  title = "Primbon Jawa Modern | Cek Weton, Lacak Barang Hilang & Katuranggan AI", 
+  description = "Aplikasi Primbon Jawa lengkap dengan fitur hitung weton, pelacakan barang hilang, ensiklopedia katuranggan manusia & perkutut, serta asisten AI Sesepuh.",
+  keywords = "primbon jawa, cek weton online, ramalan jodoh, kalender jawa 2026, cara mencari barang hilang menurut primbon, hitungan neptu barang hilang, katuranggan manusia, katuranggan perkutut pembawa rejeki, ciri mati perkutut, primbon watak, asisten ai primbon, ramalan nasib weton"
 }: SEOProps) {
   useEffect(() => {
     // Update Title

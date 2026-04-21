@@ -3,12 +3,12 @@ import { SEO } from './components/SEO';
 import { Footer } from './components/Footer';
 import { 
   CalendarDays, BookOpen, MessageSquare, Quote, 
-  Compass, Feather, Sun, Moon, Sparkles, LayoutGrid, CloudMoon, Zap, Info
+  Compass, Feather, Sun, Moon, Sparkles, LayoutGrid, CloudMoon, Zap, Info, Search, Eye
 } from 'lucide-react';
 import { cn } from './lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 
-type Tab = 'calendar' | 'weton' | 'aksara' | 'ai' | 'kompas' | 'cerita' | 'rajah' | 'mimpi' | 'kedutan' | 'about' | 'privacy' | 'terms';
+type Tab = 'calendar' | 'weton' | 'aksara' | 'ai' | 'kompas' | 'cerita' | 'rajah' | 'mimpi' | 'kedutan' | 'hilang' | 'katuranggan' | 'about' | 'privacy' | 'terms';
 
 // Lazy loading for optimization
 const Calendar = lazy(() => import('./components/Calendar').then(m => ({ default: m.Calendar })));
@@ -24,6 +24,8 @@ const KedutanFirasat = lazy(() => import('./components/KedutanFirasat').then(m =
 const About = lazy(() => import('./components/About.tsx').then(m => ({ default: m.About })));
 const PrivacyPolicy = lazy(() => import('./components/PrivacyPolicy.tsx').then(m => ({ default: m.PrivacyPolicy })));
 const TermsOfService = lazy(() => import('./components/TermsOfService.tsx').then(m => ({ default: m.TermsOfService })));
+const BarangHilang = lazy(() => import('./components/BarangHilang').then(m => ({ default: m.BarangHilang })));
+const Katuranggan = lazy(() => import('./components/Katuranggan').then(m => ({ default: m.Katuranggan })));
 
 // Loading placeholder
 const NavLoading = () => (
@@ -121,6 +123,8 @@ export default function App() {
             { id: 'rajah', label: 'Pustaka Rajah', icon: Sparkles },
             { id: 'kompas', label: 'Kompas', icon: Compass },
             { id: 'kedutan', label: 'Kedutan', icon: Zap },
+            { id: 'hilang', label: 'Lacak Barang', icon: Search },
+            { id: 'katuranggan', label: 'Katuranggan', icon: Eye },
             { id: 'ai', label: 'AI Sesepuh', icon: MessageSquare },
             { id: 'about', label: 'Tentang', icon: Info },
           ].map((item) => (
@@ -188,6 +192,16 @@ export default function App() {
             {activeTab === 'kedutan' && (
               <motion.div className="flex-1 flex flex-col" key="kedutan" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
                 <KedutanFirasat setActiveTab={setActiveTab} />
+              </motion.div>
+            )}
+            {activeTab === 'hilang' && (
+              <motion.div className="flex-1 flex flex-col" key="hilang" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
+                <BarangHilang />
+              </motion.div>
+            )}
+            {activeTab === 'katuranggan' && (
+              <motion.div className="flex-1 flex flex-col" key="katuranggan" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
+                <Katuranggan />
               </motion.div>
             )}
             {activeTab === 'about' && (
