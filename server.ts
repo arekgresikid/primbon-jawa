@@ -3,6 +3,8 @@ import { createServer as createViteServer } from "vite";
 import path from "path";
 import fs from "fs";
 import "dotenv/config";
+import helmet from "helmet";
+import { rateLimit } from "express-rate-limit";
 
 async function startServer() {
   const app = express();
@@ -11,12 +13,61 @@ async function startServer() {
   // Izinkan JSON Parsing
   app.use(express.json());
 
+  // Security Headers
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        "script-src": ["'self'", "'unsafe-inline'", "https://www.googletagmanager.com"],
+        "img-src": ["'self'", "data:", "https://gen.pollinations.ai", "https://pollinations.ai", "https://www.googletagmanager.com"],
+        "connect-src": [
+          "'self'", 
+          "https://gen.pollinations.ai", 
+          "https://www.google-analytics.com", 
+          "https://region1.google-analytics.com",
+          "ws://localhost:*", 
+          "wss://localhost:*"
+        ],
+      },
+    },
+  }));
+
+  // Blokir akses ke file .log untuk keamanan
+  app.use((req, res, next) => {
+    if (req.path.endsWith('.log')) {
+      return res.status(403).json({ error: "Access Denied" });
+    }
+    next();
+  });
+
+  // Rate Limiter untuk API AI
+  const aiRateLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 menit
+    max: 50, // limit 50 request per IP per jendela waktu
+    message: { error: "Terlalu banyak permintaan. Silakan coba lagi nanti." },
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+
   // Helper untuk log ke file agar AI bisa baca jika terminal sulit diakses
   const logToFile = (msg: string) => {
     try {
-      const logPath = path.join(process.cwd(), "server_debug.log");
+      const logsDir = path.join(process.cwd(), "logs");
+      if (!fs.existsSync(logsDir)) {
+        fs.mkdirSync(logsDir, { recursive: true });
+      }
+      const logPath = path.join(logsDir, "server.log");
       const timestamp = new Date().toISOString();
-      fs.appendFileSync(logPath, `[${timestamp}] ${msg}\n`);
+      
+      // Masking ketat: Semuanya setelah sk_ disembunyikan
+      let maskedMsg = msg.replace(/sk_[a-zA-Z0-9]+/g, "sk_***HIDDEN***");
+      
+      // Jika pesan mengandung prompt/percakapan, batasi panjangnya untuk privasi
+      if (maskedMsg.includes("Prompt:") || maskedMsg.includes("userMessage:")) {
+         maskedMsg = maskedMsg.substring(0, 150) + "... [REDACTED FOR PRIVACY]";
+      }
+
+      fs.appendFileSync(logPath, `[${timestamp}] ${maskedMsg}\n`);
     } catch (e) {
       console.error("Gagal menulis log ke file:", e);
     }
@@ -25,7 +76,7 @@ async function startServer() {
   // ========================================== //
   //  ENDPOINT API UNTUK PROXY GAMBAR           //
   // ========================================== //
-  app.get("/api/image-proxy", async (req, res) => {
+  app.get("/api/image-proxy", aiRateLimiter, async (req, res) => {
     try {
       // Ambil parameter dan pastikan tipe datanya benar
       let prompt = req.query.prompt ? String(req.query.prompt) : "";
@@ -66,9 +117,8 @@ async function startServer() {
       const response = await fetch(url);
 
       if (!response.ok) {
-        const errorText = await response.text();
-        logToFile(`Pollinations API Error (Image) (${response.status}): ${errorText}`);
-        return res.status(response.status).json({ error: `Pollinations API Returned: ${errorText}` });
+        logToFile(`Pollinations API Error (Image) (${response.status})`);
+        return res.status(response.status).json({ error: "Gagal mengambil gambar dari AI." });
       }
 
       const contentType = response.headers.get("content-type") || "image/jpeg";
@@ -86,12 +136,12 @@ async function startServer() {
       logToFile(`Successfully sent image (${contentType}) of size: ${imageBuffer.length} bytes.`);
 
     } catch (error: any) {
-      logToFile(`CRITICAL SERVER ERROR (Proxy): ${error.stack || error.message}`);
-      res.status(500).json({ error: error.message || "Internal Server Error in Proxy" });
+      logToFile(`CRITICAL SERVER ERROR (Proxy): ${error.message}`);
+      res.status(500).json({ error: "Terjadi kesalahan internal pada server proxy." });
     }
   });
 
-  app.post("/api/custom-service", async (req, res) => {
+  app.post("/api/custom-service", aiRateLimiter, async (req, res) => {
     try {
       const mySecretKey = (process.env.POLLINATION_API_KEY || "").replace(/['"]+/g, '').trim();
 
@@ -153,7 +203,7 @@ async function startServer() {
       res.json({ reply });
     } catch (error: any) {
       logToFile(`Chat Error: ${error.message}`);
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: "Terjadi gangguan pada layanan konsultasi." });
     }
   });
 
