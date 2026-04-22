@@ -1,6 +1,6 @@
 ---
 title: "Hikayat Weton Kramat yang Terlanggar: Janji Sunyi di Batas Malam"
-date: "2026-04-20"
+date: "2026-04-22"
 slug: "hikayat-weton-kramat-yang-terlanggar-janji-sunyi-di-batas-malam"
 excerpt: "Pada masa ketika embun masih hafal nama rimbun pohon bambu dan bulan menggantung seperti mata pedang yang belum ditempa, hiduplah seorang yang disebut orang seb..."
 thumbnail: "/images/default-story.png"
