@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+require('dotenv').config();
 
 function slugify(text) {
   return text
@@ -16,7 +17,7 @@ function generateExcerpt(content) {
 }
 
 async function generateStory() {
-  const apiKey = process.env.POLLINATION_API_KEY;
+  const apiKey = (process.env.POLLINATION_API_KEY || "").replace(/['"]+/g, '').trim();
   if (!apiKey) {
     console.error('Error: POLLINATION_API_KEY is not set');
     process.exit(1);
@@ -35,7 +36,10 @@ async function generateStory() {
   - Gunakan *teks miring* untuk istilah Jawa/bisikan.
   - Paragraf harus jelas (pisahkan dengan dua baris baru).`;
 
-  const userMessage = "Tuliskan hikayat mistis panjang yang luar biasa tentang pelanggaran weton Kramat.";
+  const randomSeed = Math.floor(Math.random() * 1000000);
+  const userMessage = `Tuliskan sebuah hikayat mistis Jawa yang orisinal, sangat detil, mendalam, dan epik. 
+  Pilihlah sendiri tema mistis yang paling menarik (misal: tentang benda pusaka, ritual, tempat angker, atau legenda kuno). 
+  Pastikan alur ceritanya segar dan belum pernah diceritakan sebelumnya. (Uniqueness Seed: ${randomSeed})`;
 
   try {
     const response = await fetch("https://gen.pollinations.ai/v1/chat/completions", {
@@ -44,7 +48,7 @@ async function generateStory() {
         "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         messages: [
           { role: "system", content: systemInstruction },
           { role: "user", content: userMessage }
@@ -61,15 +65,15 @@ async function generateStory() {
 
     const result = await response.json();
     const reply = result.choices[0].message.content;
-    
+
     // Improved parsing for non-JSON response
     const titleMatch = reply.match(/JUDUL:\s*(.*)/i);
     const contentMatch = reply.match(/KONTEN:\s*([\s\S]*)/i);
-    
+
     if (!titleMatch || !contentMatch) {
       throw new Error("Could not parse AI response structure. Raw reply: " + reply.substring(0, 100));
     }
-    
+
     const title = titleMatch[1].trim().replace(/[*#]/g, '');
     const content = contentMatch[1].trim();
     const slug = slugify(title);
@@ -91,7 +95,7 @@ ${content}`;
 
     const filePath = path.join(dirPath, `${slug}.md`);
     fs.writeFileSync(filePath, mdContent);
-    
+
     console.log(`Markdown story generated: ${filePath}`);
 
   } catch (error) {
