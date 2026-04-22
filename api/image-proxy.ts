@@ -16,31 +16,39 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const mySecretKey = (process.env.POLLINATION_API_KEY || "").replace(/['"]+/g, '').trim();
+    const model = req.query.model ? String(req.query.model) : "zimage";
     const clientToken = req.query.access_token ? String(req.query.access_token) : "";
     const serverToken = (process.env.STUDIO_ACCESS_TOKEN || "").replace(/['"]+/g, '').trim();
 
-    // 1. Security Check
-    if (!serverToken) {
-      return res.status(500).json({ error: "Server configuration (STUDIO_ACCESS_TOKEN) missing." });
+    // 1. Security Check (Bypass untuk model zimage)
+    if (model !== "zimage") {
+      if (!serverToken) {
+        return res.status(500).json({ error: "Server configuration (STUDIO_ACCESS_TOKEN) missing." });
+      }
+
+      if (clientToken.toUpperCase() !== serverToken.toUpperCase()) {
+        return res.status(403).json({ error: "Unauthorized: Invalid access token for this model." });
+      }
     }
 
-    if (clientToken.toUpperCase() !== serverToken.toUpperCase()) {
-      return res.status(403).json({ error: "Unauthorized: Invalid access token." });
-    }
-
-    // 2. Extract parameters
+    // 2. Extract parameters dengan sanitasi untuk stabilitas
     const prompt = req.query.prompt ? String(req.query.prompt) : "";
     if (!prompt) return res.status(400).json({ error: "Prompt is required" });
 
-    const model = req.query.model ? String(req.query.model) : "flux";
-    const width = req.query.width ? parseInt(String(req.query.width)) : 1024;
-    const height = req.query.height ? parseInt(String(req.query.height)) : 1024;
-    const seed = req.query.seed ? parseInt(String(req.query.seed)) : Math.floor(Math.random() * 2147483647);
+    const width = Math.min(Math.max(parseInt(String(req.query.width)) || 1024, 256), 2048);
+    const height = Math.min(Math.max(parseInt(String(req.query.height)) || 1024, 256), 2048);
+    
+    // Membatasi seed ke rentang integer 32-bit (0 - 2,147,483,647)
+    let rawSeed = parseInt(String(req.query.seed));
+    let seed = !isNaN(rawSeed) ? rawSeed : Math.floor(Math.random() * 2147483647);
+    if (seed > 2147483647) seed = seed % 2147483647;
+    if (seed < 0) seed = Math.abs(seed);
+
     const enhance = req.query.enhance === 'false' ? 'false' : 'true';
     const safe = req.query.safe === 'false' ? 'false' : 'true';
     const quality = req.query.quality ? String(req.query.quality) : 'high';
     const transparent = req.query.transparent === 'true' ? 'true' : 'false';
-    const nologo = req.query.nologo === 'true' ? 'true' : 'false';
+    const nologo = req.query.nologo === 'false' ? 'false' : 'true';
     const negative_prompt = req.query.negative_prompt ? String(req.query.negative_prompt) : '';
     const image = req.query.image ? String(req.query.image) : '';
     

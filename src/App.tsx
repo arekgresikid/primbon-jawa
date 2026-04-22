@@ -59,6 +59,8 @@ function PrimbonApp() {
 
   useEffect(() => {
     localStorage.setItem('primbon-active-tab', activeTab);
+    // Reset scroll position to top when tab changes
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [activeTab]);
 
   useEffect(() => {
@@ -94,9 +96,6 @@ function PrimbonApp() {
              Primbon & Kalender Jawa
              <span className="text-gold-500 pt-1">❖</span>
            </h1>
-           <button onClick={() => setIsDarkMode(!isDarkMode)} className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-stone-600 dark:text-stone-300 transition-colors">
-             {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-           </button>
         </header>
         
         <nav className="sticky top-[60px] z-30 bg-stone-50/95 dark:bg-stone-950/95 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 transition-colors w-full">
@@ -114,7 +113,11 @@ function PrimbonApp() {
               { id: 'katuranggan', label: 'Katuranggan', icon: Eye },
               { id: 'ai', label: 'AI Sesepuh', icon: MessageSquare },
               { id: 'studio', label: 'AI Studio', icon: Zap, highlight: true },
-            ].map((item) => (
+            ].filter(item => {
+              // Daftar item yang sudah ada di bottom nav
+              const bottomNavIds = ['calendar', 'weton', 'mimpi', 'ai', 'kompas'];
+              return !bottomNavIds.includes(item.id);
+            }).map((item) => (
               <button
                 key={item.id}
                 onClick={() => {
@@ -203,11 +206,15 @@ function PrimbonApp() {
               {activeTab === 'terms' && <TermsOfService />}
             </Suspense>
           </AnimatePresence>
-          <Footer setTab={setActiveTab} />
+          <Footer 
+            setTab={setActiveTab} 
+            isDarkMode={isDarkMode} 
+            setIsDarkMode={setIsDarkMode} 
+          />
         </main>
 
         <div className="fixed bottom-0 left-0 right-0 bg-stone-50/90 dark:bg-stone-950/90 backdrop-blur-md border-t border-stone-200 dark:border-stone-800 pb-[env(safe-area-inset-bottom)] z-50 transition-colors">
-           <div className="max-w-md mx-auto px-2 sm:px-6 h-16 flex justify-between items-center bg-transparent">
+            <div className="max-w-md mx-auto px-2 sm:px-6 h-16 flex justify-between items-center bg-transparent">
               {[
                 { id: 'calendar', label: 'Kalender', icon: CalendarDays },
                 { id: 'weton', label: 'Wetonku', icon: BookOpen },

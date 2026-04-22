@@ -83,18 +83,19 @@ async function startServer() {
       const model = req.query.model ? String(req.query.model) : "zimage";
       const mySecretKey = (process.env.POLLINATION_API_KEY || "").replace(/['"]+/g, '').trim();
       const clientToken = req.query.access_token ? String(req.query.access_token) : "";
-
-      // Validasi Token Keamanan Server-Side dari Environment Variable
       const SERVER_INTERNAL_TOKEN = (process.env.STUDIO_ACCESS_TOKEN || "").replace(/['"]+/g, '').trim(); 
       
-      if (!SERVER_INTERNAL_TOKEN) {
-        logToFile("Error: STUDIO_ACCESS_TOKEN tidak dikonfigurasi di server.");
-        return res.status(500).json({ error: "Konfigurasi server tidak lengkap." });
-      }
+      // Jika model bukan zimage, wajib validasi token
+      if (model !== "zimage") {
+        if (!SERVER_INTERNAL_TOKEN) {
+          logToFile("Error: STUDIO_ACCESS_TOKEN tidak dikonfigurasi di server.");
+          return res.status(500).json({ error: "Konfigurasi server tidak lengkap." });
+        }
 
-      if (clientToken !== SERVER_INTERNAL_TOKEN) {
-        logToFile(`Unauthorized access attempt from client with token: ${clientToken}`);
-        return res.status(403).json({ error: "Akses ditolak. Token tidak valid." });
+        if (clientToken !== SERVER_INTERNAL_TOKEN) {
+          logToFile(`Unauthorized access attempt for model ${model} from client with token: ${clientToken}`);
+          return res.status(403).json({ error: "Akses ditolak. Token tidak valid untuk model ini." });
+        }
       }
 
       if (!prompt) {
@@ -102,15 +103,20 @@ async function startServer() {
         return res.status(400).json({ error: "Prompt is required" });
       }
 
-      // 2. Get advanced parameters
-      const width = req.query.width ? parseInt(String(req.query.width)) : 1024;
-      const height = req.query.height ? parseInt(String(req.query.height)) : 1024;
-      const seed = req.query.seed ? parseInt(String(req.query.seed)) : Math.floor(Math.random() * 2147483647);
+      // 2. Get advanced parameters dengan sanitasi untuk stabilitas
+      const width = Math.min(Math.max(parseInt(String(req.query.width)) || 1024, 256), 2048);
+      const height = Math.min(Math.max(parseInt(String(req.query.height)) || 1024, 256), 2048);
+      
+      // Membatasi seed ke rentang integer 32-bit (0 - 2,147,483,647)
+      let rawSeed = parseInt(String(req.query.seed));
+      let seed = !isNaN(rawSeed) ? rawSeed : Math.floor(Math.random() * 2147483647);
+      if (seed > 2147483647) seed = seed % 2147483647;
+      if (seed < 0) seed = Math.abs(seed);
       const enhance = req.query.enhance === 'false' ? 'false' : 'true';
       const safe = req.query.safe === 'false' ? 'false' : 'true';
       const quality = req.query.quality ? String(req.query.quality) : 'high';
       const transparent = req.query.transparent === 'true' ? 'true' : 'false';
-      const nologo = req.query.nologo === 'true' ? 'true' : 'false';
+      const nologo = req.query.nologo === 'false' ? 'false' : 'true';
       const negative_prompt = req.query.negative_prompt ? String(req.query.negative_prompt) : '';
       const image = req.query.image ? String(req.query.image) : '';
       
