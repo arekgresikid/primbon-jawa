@@ -177,17 +177,48 @@ export function getLuckyColorByPasaran(pasaran: string) {
 
 export function getJodoh(neptu1: number, neptu2: number) {
   const sum = neptu1 + neptu2;
-  const res = sum % 7;
-  const jodohMap = [
-    'Lebu Katiup Angin (Sering berpindah, mengalami ujian ketetapan)',
-    'Wasesa Segara (Rezeki seluas lautan, pemaaf)',
-    'Tunggak Semi (Rezekinya selalu ada, tumbuh terus)',
-    'Satria Wibawa (Dihargai dan dihormati banyak orang)',
-    'Sumur Sinaba (Menjadi sumber inspirasi & tempat bertanya)',
-    'Satria Wirang (Sering mendapat malu, harus tabah)',
-    'Bumi Kapetak (Pekerja keras, tahan banting, ulet)'
+  
+  // 1. Perhitungan Sisa 8 (Paling Populer)
+  const res8 = sum % 8;
+  const map8 = [
+    'Pesthi (Rumah tangga akan rukun, adem ayem, dan sejahtera hingga tua)', // 0 (8)
+    'Pegat (Sering bertengkar, masalah ekonomi, atau risiko perpisahan)', // 1
+    'Ratu (Dihormati banyak orang, rezeki melimpah, disegani tetangga)', // 2
+    'Jodoh (Sangat cocok, saling melengkapi, rezeki lancar, rukun selalu)', // 3
+    'Topo (Awalnya susah/berat, tapi akan sukses dan bahagia di akhir)', // 4
+    'Tinari (Murah rezeki, sering mendapat keberuntungan, hidup senang)', // 5
+    'Padu (Sering adu mulut/bertengkar, tapi tidak sampai bercerai)', // 6
+    'Sujanan (Sering mengalami perselingkuhan atau masalah kepercayaan)' // 7
   ];
-  return { category: jodohMap[res], score: res };
+  
+  // 2. Perhitungan Sisa 7 (Karakter Hubungan)
+  const res7 = sum % 7;
+  const map7 = [
+    'Bumi Kapetak (Pekerja keras, ulet, tapi sering mengalami rintangan)', // 0 (7)
+    'Lebu Katiup Angin (Sering berpindah, mengalami ujian ketetapan)', // 1
+    'Wasesa Segara (Rezeki seluas lautan, pemaaf, berjiwa besar)', // 2
+    'Tunggak Semi (Rezekinya selalu ada, tumbuh terus, berkecukupan)', // 3
+    'Satria Wibawa (Dihargai dan dihormati banyak orang)', // 4
+    'Sumur Sinaba (Menjadi sumber inspirasi & tempat bertanya)', // 5
+    'Satria Wirang (Sering mendapat malu atau fitnah, harus tabah)' // 6
+  ];
+
+  // 3. Perhitungan Sisa 5 (Pancasuda Jodoh)
+  const res5 = sum % 5;
+  const map5 = [
+    'Pati (Salah satu atau keduanya sering mengalami sial/kemalangan)', // 0 (5)
+    'Sri (Banyak rezeki, dikasihi banyak orang, selamat)', // 1
+    'Lungguh (Mendapat kedudukan, kehormatan, dan kemuliaan)', // 2
+    'Gedhong (Kaya harta, pandai mengatur ekonomi keluarga)', // 3
+    'Loro (Sering sakit-sakitan atau mengalami penurunan vitalitas)' // 4
+  ];
+
+  return { 
+    total: sum,
+    sisa8: { category: map8[res8 === 0 ? 0 : res8], code: res8 === 0 ? 8 : res8 },
+    sisa7: { category: map7[res7 === 0 ? 0 : res7], code: res7 === 0 ? 7 : res7 },
+    sisa5: { category: map5[res5 === 0 ? 0 : res5], code: res5 === 0 ? 5 : res5 }
+  };
 }
 
 export function getStrategiBisnis(neptu: number, dina: string, pasaran: string) {

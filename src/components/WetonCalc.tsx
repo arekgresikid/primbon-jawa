@@ -480,18 +480,28 @@ export function WetonCalc() {
                      />
                    </div>
 
-                   <p className="text-sm text-stone-500 dark:text-stone-400 mb-2">Total Neptu Berdua: <span className="text-stone-800 dark:text-stone-300 font-bold">{result.w1.neptu + result.w2.neptu}</span> (dibagi 7, sisa {result.jodoh.score})</p>
+                   <p className="text-sm text-stone-500 dark:text-stone-400 mb-2">Total Neptu Berdua: <span className="text-stone-800 dark:text-stone-300 font-bold">{result.jodoh.total}</span></p>
                    <div className="inline-block mt-2">
                      <motion.div
                        initial={{ scale: 0.8, opacity: 0 }}
                        animate={{ scale: 1, opacity: 1 }}
                        transition={{ delay: 1.2, type: "spring" }}
                      >
-                       <h3 className="text-2xl font-bold text-gold-600 dark:text-gold-500 mb-3 uppercase tracking-tighter">{result.jodoh.category.split('(')[0]}</h3>
+                       <h3 className="text-2xl font-bold text-gold-600 dark:text-gold-500 mb-3 uppercase tracking-tighter">{result.jodoh.sisa8.category.split('(')[0]}</h3>
                      </motion.div>
                      <p className="text-stone-600 dark:text-stone-300 bg-stone-50 dark:bg-stone-800/50 p-4 rounded-xl max-w-md mx-auto italic border border-stone-200 dark:border-stone-800">
-                       "... {result.jodoh.category.split('(')[1]?.replace(')','')} ..."
+                       "... {result.jodoh.sisa8.category.split('(')[1]?.replace(')','')} ..."
                      </p>
+                     <div className="mt-4 grid grid-cols-2 gap-2">
+                        <div className="bg-stone-100 dark:bg-stone-800/30 p-2 rounded text-[10px] text-stone-500">
+                          <span className="font-bold block text-stone-400 mb-1">HASIL UTAMA (Sisa 8)</span>
+                          {result.jodoh.sisa8.category.split('(')[0]}
+                        </div>
+                        <div className="bg-stone-100 dark:bg-stone-800/30 p-2 rounded text-[10px] text-stone-500">
+                          <span className="font-bold block text-stone-400 mb-1">WATAK HUBUNGAN (Sisa 7)</span>
+                          {result.jodoh.sisa7.category.split('(')[0]}
+                        </div>
+                     </div>
                    </div>
                 </div>
               </div>

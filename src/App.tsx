@@ -3,13 +3,13 @@ import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-
 import { SEO } from './components/SEO';
 import { Footer } from './components/Footer';
 import { 
-  CalendarDays, BookOpen, MessageSquare, Quote, 
+  CalendarDays, BookOpen, MessageSquare, Quote, Heart,
   Compass, Feather, Sun, Moon, Sparkles, LayoutGrid, CloudMoon, Zap, Info, Search, Eye, EyeOff, ArrowLeft
 } from 'lucide-react';
 import { cn } from './lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 
-type Tab = 'calendar' | 'weton' | 'aksara' | 'ai' | 'kompas' | 'cerita' | 'rajah' | 'mimpi' | 'kedutan' | 'hilang' | 'katuranggan' | 'about' | 'privacy' | 'terms';
+type Tab = 'calendar' | 'weton' | 'jodoh' | 'aksara' | 'ai' | 'kompas' | 'cerita' | 'rajah' | 'mimpi' | 'kedutan' | 'hilang' | 'katuranggan' | 'about' | 'privacy' | 'terms';
 
 // Lazy loading for optimization
 const Calendar = lazy(() => import('./components/Calendar').then(m => ({ default: m.Calendar })));
@@ -28,6 +28,7 @@ const TermsOfService = lazy(() => import('./components/TermsOfService.tsx').then
 const BarangHilang = lazy(() => import('./components/BarangHilang').then(m => ({ default: m.BarangHilang })));
 const Katuranggan = lazy(() => import('./components/Katuranggan').then(m => ({ default: m.Katuranggan })));
 const ImageGenerator = lazy(() => import('./components/ImageGenerator').then(m => ({ default: m.ImageGenerator })));
+const WetonJodoh = lazy(() => import('./components/WetonJodoh').then(m => ({ default: m.WetonJodoh })));
 
 // Loading placeholder
 const NavLoading = () => (
@@ -112,10 +113,11 @@ function PrimbonApp() {
               { id: 'hilang', label: 'Lacak Barang', icon: Search },
               { id: 'katuranggan', label: 'Katuranggan', icon: Eye },
               { id: 'ai', label: 'AI Sesepuh', icon: MessageSquare },
+              { id: 'jodoh', label: 'Cek Jodoh', icon: Heart },
               { id: 'studio', label: 'AI Studio', icon: Zap, highlight: true },
             ].filter(item => {
               // Daftar item yang sudah ada di bottom nav
-              const bottomNavIds = ['calendar', 'weton', 'mimpi', 'ai', 'kompas'];
+              const bottomNavIds = ['calendar', 'weton', 'jodoh', 'mimpi', 'ai'];
               return !bottomNavIds.includes(item.id);
             }).map((item) => (
               <button
@@ -159,6 +161,11 @@ function PrimbonApp() {
               {activeTab === 'weton' && (
                 <motion.div className="flex-1 flex flex-col" key="weton" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                   <WetonCalc />
+                </motion.div>
+              )}
+              {activeTab === 'jodoh' && (
+                <motion.div className="flex-1 flex flex-col" key="jodoh" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <WetonJodoh />
                 </motion.div>
               )}
               {activeTab === 'ai' && (
@@ -218,9 +225,9 @@ function PrimbonApp() {
               {[
                 { id: 'calendar', label: 'Kalender', icon: CalendarDays },
                 { id: 'weton', label: 'Wetonku', icon: BookOpen },
+                { id: 'jodoh', label: 'Jodoh', icon: Heart },
                 { id: 'mimpi', label: 'Mimpi', icon: CloudMoon },
                 { id: 'ai', label: 'AI Sesepuh', icon: MessageSquare },
-                { id: 'kompas', label: 'Kompas', icon: Compass },
               ].map((item) => (
                 <button key={item.id} onClick={() => setActiveTab(item.id as Tab)} className={cn("flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors px-1", activeTab === item.id ? "text-gold-500" : "text-stone-500 hover:text-stone-800 dark:hover:text-stone-300")}>
                   <item.icon size={18} className={activeTab === item.id ? "drop-shadow-[0_0_8px_rgba(212,163,115,0.4)]" : ""} />
