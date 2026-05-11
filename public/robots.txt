@@ -1,4 +1,17 @@
+# robots.txt profesional untuk Primbon & Kalender Jawa
 User-agent: *
 Allow: /
+Allow: /calendar
+Allow: /weton
+Allow: /jodoh
+Allow: /mimpi
 
-Sitemap: https://www.jawidigital.my.id/sitemap.xml
+# Batasi akses ke area sistem dan API
+Disallow: /api/
+Disallow: /logs/
+Disallow: /.env
+Disallow: /package.json
+Disallow: /package-lock.json
+
+# Optimasi untuk Bot Pencarian
+Sitemap: https://primbon-jawa.vercel.app/sitemap.xml
