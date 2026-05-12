@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Moon, CloudMoon, Sparkles, Loader2, Trash2, Download, Copy, Check, Image as ImageIcon, Feather, UserCircle, ChevronDown } from 'lucide-react';
+import { Send, Moon, CloudMoon, Sparkles, Loader2, Trash2, Download, Copy, Check, Image as ImageIcon, Feather, UserCircle, ChevronDown, Maximize2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 import Markdown from 'react-markdown';
@@ -11,16 +11,43 @@ interface ChatMessage {
   visualPrompt?: string;
 }
 
-function DreamImage({ prompt, seed }: { prompt: string, seed: string }) {
+function DreamImage({ prompt, seed, onZoom }: { prompt: string, seed: string, onZoom: (url: string) => void }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [progress, setProgress] = useState(0);
   const imageUrl = `/api/image-proxy?prompt=${encodeURIComponent(prompt)}&seed=${seed}`;
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (loading) {
+      setProgress(0);
+      interval = setInterval(() => {
+        setProgress(prev => {
+          if (prev >= 98) return prev;
+          return prev + (prev < 70 ? 10 : 2);
+        });
+      }, 400);
+    }
+    return () => clearInterval(interval);
+  }, [loading]);
 
   return (
     <div className="w-full aspect-[16/9] rounded-xl overflow-hidden bg-stone-100 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 mb-4 relative group shadow-inner">
       {loading && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-stone-50 dark:bg-stone-900 z-10 transition-opacity">
-          <Loader2 className="w-6 h-6 text-gold-500 animate-spin" />
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-stone-50 dark:bg-stone-900 z-10 transition-opacity p-6">
+          <div className="relative">
+            <Loader2 className="w-8 h-8 text-gold-500 animate-spin" />
+            <div className="absolute inset-0 flex items-center justify-center">
+               <span className="text-[8px] font-bold text-gold-600">{progress}%</span>
+            </div>
+          </div>
+          <div className="w-full max-w-[120px] h-1 bg-stone-200 dark:bg-stone-800 rounded-full overflow-hidden">
+            <motion.div 
+              className="h-full bg-gold-500"
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+            />
+          </div>
           <span className="text-[10px] uppercase tracking-widest font-bold text-stone-400 animate-pulse">Membuka Tabir Visual...</span>
         </div>
       )}
@@ -42,8 +69,33 @@ function DreamImage({ prompt, seed }: { prompt: string, seed: string }) {
           }}
         />
       )}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3 pointer-events-none">
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between p-3">
         <span className="text-[9px] text-white/80 font-medium italic">Simulasi Dimensi Ghaib • zimage model</span>
+        <div className="flex gap-2 pointer-events-auto">
+          <button 
+            onClick={() => onZoom(imageUrl)}
+            className="p-2 bg-white/20 backdrop-blur-md rounded-lg text-white hover:bg-gold-500 transition-colors"
+            title="Zoom"
+          >
+            <Maximize2 size={14} />
+          </button>
+          <button 
+            onClick={async () => {
+              try {
+                const res = await fetch(imageUrl);
+                const blob = await res.blob();
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = `tafsir-mimpi-${seed}.jpg`;
+                a.click();
+              } catch (e) { console.error(e); }
+            }}
+            className="p-2 bg-white/20 backdrop-blur-md rounded-lg text-white hover:bg-gold-500 transition-colors"
+            title="Download"
+          >
+            <Download size={14} />
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -77,6 +129,7 @@ export function TafsirMimpi() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
+  const [zoomImage, setZoomImage] = useState<string | null>(null);
 
   useEffect(() => {
     if (inputRef.current) {
@@ -269,7 +322,7 @@ Gunakan format Markdown yang indah.`;
                   
                   {/* Visual Dream Illustration */}
                   {msg.role === 'assistant' && msg.visualPrompt && (
-                    <DreamImage prompt={msg.visualPrompt} seed={msg.id} />
+                    <DreamImage prompt={msg.visualPrompt} seed={msg.id} onZoom={setZoomImage} />
                   )}
 
                   <div className={cn(
@@ -363,6 +416,54 @@ Gunakan format Markdown yang indah.`;
           </form>
         </div>
       </div>
+
+      {/* Zoom Overlay */}
+      <AnimatePresence>
+        {zoomImage && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 sm:p-10"
+            onClick={() => setZoomImage(null)}
+          >
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative max-w-full max-h-full flex items-center justify-center"
+              onClick={e => e.stopPropagation()}
+            >
+              <button 
+                onClick={() => setZoomImage(null)}
+                className="absolute -top-12 right-0 sm:-right-12 text-white/50 hover:text-white transition-colors"
+              >
+                <X size={32} />
+              </button>
+              
+              <img src={zoomImage} alt="Zoomed result" className="max-w-full max-h-[85vh] rounded-2xl shadow-2xl object-contain border border-white/10" />
+
+              <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 flex gap-4">
+                <button 
+                  onClick={async () => {
+                    try {
+                      const res = await fetch(zoomImage);
+                      const blob = await res.blob();
+                      const a = document.createElement('a');
+                      a.href = URL.createObjectURL(blob);
+                      a.download = `tafsir-mimpi-zoom.jpg`;
+                      a.click();
+                    } catch (e) { console.error(e); }
+                  }}
+                  className="flex items-center gap-2 px-6 py-3 bg-white text-stone-900 rounded-full font-black text-xs tracking-widest hover:bg-gold-500 hover:text-white transition-all shadow-xl"
+                >
+                  <Download size={16} /> DOWNLOAD
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

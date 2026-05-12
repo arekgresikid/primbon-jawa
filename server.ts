@@ -10,8 +10,9 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
-  // Izinkan JSON Parsing
-  app.use(express.json());
+  // Izinkan JSON Parsing dengan limit lebih besar untuk upload gambar (Base64)
+  app.use(express.json({ limit: '20mb' }));
+  app.use(express.urlencoded({ limit: '20mb', extended: true }));
 
   // Security Headers
   app.use(helmet({

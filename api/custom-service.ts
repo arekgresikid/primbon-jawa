@@ -22,8 +22,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       finalMessages.push({ role: "user", content: userMessage });
     }
 
-    // Gunakan model dari request, default ke mistral jika tidak diset (Mistral stabil untuk free-tier)
-    const modelName = req.body.model || "openai";
+    // Gunakan model dari request, default ke openai-fast jika tidak diset (openai-fast stabil untuk free-tier)
+    const modelName = req.body.model || "openai-fast";
 
     // Panggil Pollinations AI
     const response = await fetch("https://gen.pollinations.ai/v1/chat/completions", {
@@ -41,13 +41,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (!response.ok) {
       // Fallback logic if specific model fails
-      if (modelName !== "openai") {
+      if (modelName !== "openai-fast") {
         const fallbackResponse = await fetch("https://gen.pollinations.ai/v1/chat/completions", {
           method: "POST",
           headers: { "Authorization": `Bearer ${mySecretKey}`, "Content-Type": "application/json" },
           body: JSON.stringify({ 
             messages: [{ role: "system", content: systemInstruction }, ...finalMessages],
-            model: "openai",
+            model: "openai-fast",
             stream: false
           })
         });
