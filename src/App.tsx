@@ -9,7 +9,7 @@ import {
 import { cn } from './lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 
-type Tab = 'calendar' | 'weton' | 'jodoh' | 'aksara' | 'ai' | 'kompas' | 'cerita' | 'rajah' | 'mimpi' | 'kedutan' | 'hilang' | 'katuranggan' | 'about' | 'privacy' | 'terms';
+type Tab = 'calendar' | 'weton' | 'jodoh' | 'aksara' | 'ai' | 'kompas' | 'cerita' | 'rajah' | 'mimpi' | 'kedutan' | 'hilang' | 'katuranggan' | 'about' | 'privacy' | 'terms' | 'rejeki';
 
 // Lazy loading for optimization
 const Calendar = lazy(() => import('./components/Calendar').then(m => ({ default: m.Calendar })));
@@ -29,6 +29,7 @@ const BarangHilang = lazy(() => import('./components/BarangHilang').then(m => ({
 const Katuranggan = lazy(() => import('./components/Katuranggan').then(m => ({ default: m.Katuranggan })));
 const ImageGenerator = lazy(() => import('./components/ImageGenerator').then(m => ({ default: m.ImageGenerator })));
 const WetonJodoh = lazy(() => import('./components/WetonJodoh').then(m => ({ default: m.WetonJodoh })));
+const ArahRejeki = lazy(() => import('./components/ArahRejeki').then(m => ({ default: m.ArahRejeki })));
 
 // Loading placeholder
 const NavLoading = () => (
@@ -114,6 +115,7 @@ function PrimbonApp() {
               { id: 'katuranggan', label: 'Katuranggan', icon: Eye },
               { id: 'ai', label: 'AI Sesepuh', icon: MessageSquare },
               { id: 'jodoh', label: 'Cek Jodoh', icon: Heart },
+              { id: 'rejeki', label: 'Arah Rejeki', icon: Compass },
               { id: 'studio', label: 'AI Studio', icon: Zap, highlight: true },
             ].filter(item => {
               // Daftar item yang sudah ada di bottom nav
@@ -206,6 +208,11 @@ function PrimbonApp() {
               {activeTab === 'katuranggan' && (
                 <motion.div className="flex-1 flex flex-col" key="katuranggan" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                   <Katuranggan />
+                </motion.div>
+              )}
+              {activeTab === 'rejeki' && (
+                <motion.div className="flex-1 flex flex-col" key="rejeki" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <ArahRejeki />
                 </motion.div>
               )}
               {activeTab === 'about' && <About />}
