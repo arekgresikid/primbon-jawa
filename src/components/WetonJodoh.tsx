@@ -37,12 +37,12 @@ export function WetonJodoh() {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto pb-32 px-4 sm:px-6 pt-6 sm:pt-10">
+    <div className="w-full max-w-4xl mx-auto pb-32 px-4 sm:px-6 pt-6 sm:pt-10">
       <div className="mb-10 text-center space-y-3">
         <div className="inline-flex items-center justify-center w-16 h-16 bg-red-500/10 rounded-full mb-2">
           <Heart size={32} className="text-red-500 fill-red-500/20 animate-pulse" />
         </div>
-        <h2 className="text-3xl font-black text-stone-900 dark:text-stone-100 tracking-tight">
+        <h2 className="text-3xl font-serif font-black text-stone-900 dark:text-stone-100 tracking-tight">
           Cek Jodoh <span className="text-gold-500">Primbon</span>
         </h2>
         <p className="text-stone-500 dark:text-stone-400 text-sm max-w-md mx-auto">

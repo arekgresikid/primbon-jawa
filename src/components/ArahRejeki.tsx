@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Compass, Sparkles } from 'lucide-react';
+import { Compass, Sparkles, Palette, ArrowRightCircle } from 'lucide-react';
 import { motion } from 'motion/react';
 
 const ARAH_DATA: Record<string, string> = {
@@ -12,7 +12,7 @@ const ARAH_DATA: Record<string, string> = {
   'Minggu': 'Timur',
 };
 
-export function ArahRejeki() {
+export const ArahRejeki: React.FC<{ setActiveTab?: (tab: any) => void }> = ({ setActiveTab }) => {
   const [hari, setHari] = useState('Senin');
   const arah = ARAH_DATA[hari];
 
@@ -81,10 +81,21 @@ export function ArahRejeki() {
         </motion.div>
       </div>
 
-      <div className="p-4 bg-blue-500/5 border border-blue-500/10 rounded-2xl">
-        <p className="text-[10px] text-blue-600 dark:text-blue-400 font-medium leading-relaxed">
+      <div className="p-4 bg-blue-500/5 border border-blue-500/10 rounded-2xl flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+        <p className="text-[10px] text-blue-600 dark:text-blue-400 font-medium leading-relaxed flex-1">
           <strong>Catatan Sesepuh:</strong> Arah rejeki ini adalah salah satu bentuk ikhtiar batin. Hasil akhir tetap ada di tangan Sang Pencipta, namun melangkah dengan keyakinan akan membuka pintu-pintu yang tertutup.
         </p>
+
+        {setActiveTab && (
+          <button 
+            onClick={() => setActiveTab('warnapasaran')}
+            className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl text-xs font-bold text-stone-600 dark:text-stone-300 hover:text-gold-600 dark:hover:text-gold-400 hover:border-gold-500/50 transition-all group shrink-0"
+          >
+            <Palette size={14} className="group-hover:animate-pulse text-gold-500" />
+            Cek Warna Pasaran
+            <ArrowRightCircle size={14} className="opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+          </button>
+        )}
       </div>
     </div>
   );

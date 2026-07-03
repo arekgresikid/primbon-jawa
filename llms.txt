@@ -1,0 +1,45 @@
+# Primbon Jawa
+
+Primbon Jawa is a web application that provides traditional Javanese cultural knowledge, divination, and calculation tools. It is built using modern web technologies to preserve and present local wisdom in an accessible digital format.
+
+## Tech Stack
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- Lucide React (Icons)
+- Framer Motion (Animations)
+- React Router DOM
+
+## Core Features
+1. **Kalender Jawa**: Shows Gregorian, Hijri, and Javanese dates, including weton, wuku, and pranata mangsa.
+2. **Wetonku**: Calculates personal weton, neptu, character traits, and business strategies based on birth date.
+3. **Cek Jodoh**: Calculates marriage compatibility based on the couple's weton using various traditional methods (sisa 8, sisa 7, sisa 5).
+4. **Tafsir Mimpi**: Provides a dictionary and search engine for traditional dream interpretations.
+5. **Cerita Mistis**: A collection of traditional mystical stories and myths.
+6. **Aksara Jawa**: Converts Latin text to Javanese script (Hanacaraka).
+7. **Pustaka Rajah**: A library of traditional talismans and sacred geometry (rajah).
+8. **Kompas Arah**: Determines auspicious directions based on weton or day.
+9. **Kedutan & Firasat**: Explains the meaning behind involuntary muscle twitches (kedutan).
+10. **Lacak Barang Hilang**: Uses traditional calculation methods to guess the location of lost items.
+11. **Katuranggan**: Knowledge about physical traits of animals (like birds, horses, cats) and their meanings.
+12. **AI Sesepuh**: An AI-powered consultant roleplaying as a wise Javanese elder.
+13. **Arah Rejeki**: Calculates the lucky direction for a specific day based on the user's weton.
+14. **Warna & Arah Pasaran**: Menentukan warna pakaian dan arah berdasarkan hari pasaran (Pon, Wage, Kliwon, Legi, Pahing).
+15. **Primbon Halangan (Firasat Haid)**: Explains the meaning behind the start of menstruation based on day, date, and time.
+16. **Firasat Lindu**: Explains the meaning of earthquakes (lindu) based on the Javanese month and time of day.
+17. **Telinga Berdenging**: Explains the meaning behind ringing ears based on which ear and the time of day.
+
+## Project Structure
+- `src/components/`: Contains all the React UI components (e.g., `Calendar.tsx`, `WetonCalc.tsx`, `TafsirMimpi.tsx`, `PrimbonHalangan.tsx`).
+- `src/lib/`: Contains utility functions and business logic, most notably `jawaMath.ts` which handles all the complex Primbon and calendar calculations.
+- `src/content/`: Contains static data and markdown content for stories, rajah, and other textual data.
+- `src/data/`: JSON or static data files used across the application.
+- `App.tsx`: Main application component, handles routing and tab navigation.
+
+## Design Philosophy
+The application uses a specific design system focusing on:
+- Dark mode compatibility (`dark:` variants heavily used).
+- "Stone" color palette for the background and text (`stone-50` to `stone-950`).
+- "Gold" color palette for accents, highlights, and mystical elements (`gold-500`, `gold-600`).
+- Clean, modern UI with subtle animations to give a magical and premium feel.

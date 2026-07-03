@@ -26,9 +26,9 @@ export function KedutanFirasat({ setActiveTab }: { setActiveTab: (tab: any) => v
   });
 
   return (
-    <div className="w-full max-w-2xl mx-auto pb-32 px-4 sm:px-6 pt-6 sm:pt-10">
+    <div className="w-full max-w-4xl mx-auto pb-32 px-4 sm:px-6 pt-6 sm:pt-10">
       <div className="mb-10 text-center space-y-3">
-        <h2 className="text-3xl font-black text-stone-900 dark:text-stone-100 flex items-center justify-center gap-3">
+        <h2 className="text-3xl font-serif font-black text-stone-900 dark:text-stone-100 flex items-center justify-center gap-3">
           <Sparkles size={28} className="text-gold-500" />
           Isyarat Kedutan & Firasat
         </h2>

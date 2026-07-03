@@ -75,6 +75,12 @@ export const Footer: React.FC<FooterProps> = ({ setTab, isDarkMode, setIsDarkMod
             </a>
             <span className="hidden sm:inline text-stone-300 dark:text-stone-800">|</span>
             <button 
+              onClick={() => setTab?.('about')}
+              className="hover:text-gold-500 transition-colors"
+            >
+              Tentang
+            </button>
+            <button 
               onClick={() => setTab?.('privacy')}
               className="hover:text-gold-500 transition-colors"
             >

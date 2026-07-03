@@ -278,12 +278,12 @@ Gunakan format Markdown yang indah.`;
         ref={scrollContainerRef}
         className="flex-1 overflow-y-auto px-4 sm:px-6 pt-6 pb-40 w-full flex flex-col items-center flex-grow"
       >
-        <div className="w-full max-w-3xl">
+        <div className="w-full max-w-4xl">
           <div className="mb-10 text-center shrink-0">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-stone-900 dark:bg-stone-800 rounded-full mb-4 shadow-xl border border-gold-500/30">
               <CloudMoon className="text-gold-500" size={32} />
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-stone-900 dark:text-stone-100 tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-serif font-black text-stone-900 dark:text-stone-100 tracking-tight">
               Tafsir Mimpi Sesepuh
             </h2>
             <p className="text-stone-500 dark:text-stone-400 text-sm mt-2 max-w-md mx-auto italic">
@@ -382,7 +382,7 @@ Gunakan format Markdown yang indah.`;
         </AnimatePresence>
 
       <div className="fixed bottom-16 left-0 right-0 w-full bg-white/80 dark:bg-stone-950/80 backdrop-blur-md border-t border-stone-200 dark:border-stone-800 px-4 py-3 sm:px-6 z-40">
-        <div className="max-w-3xl mx-auto w-full">
+        <div className="max-w-4xl mx-auto w-full">
           <form onSubmit={handleSend} className="relative flex items-center gap-3">
             <button 
                 type="button"

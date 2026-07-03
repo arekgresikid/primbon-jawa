@@ -442,3 +442,127 @@ export function getHajatHarian(neptu: number) {
   ];
   return indicators;
 }
+
+export function getFirasatHaidHari(dina: string) {
+  const map: Record<string, string> = {
+    'Minggu': 'Akan berjumpa dengan kenalan lama atau keluarga.',
+    'Senin': 'Akan mendapatkan keuntungan atau kabar baik dalam waktu dekat.',
+    'Selasa': 'Akan merasakan kebahagiaan atau bersuka cita.',
+    'Rabu': 'Kemungkinan akan mengalami sedikit pertengkaran atau perselisihan.',
+    'Kamis': 'Berhati-hati, mungkin ada musibah atau kabar duka.',
+    'Jumat': 'Akan mendapatkan kesenangan dan ketentraman hati.',
+    'Sabtu': 'Akan mendapatkan kejadian yang mengejutkan.'
+  };
+  return map[dina] || 'Tidak ada ramalan khusus untuk hari ini.';
+}
+
+export function getFirasatHaidTanggal(tanggal: number) {
+  const map: Record<number, string> = {
+    1: 'Akan merasakan kesenangan dan kebahagiaan.',
+    2: 'Akan merasa sedih atau mengalami kesulitan.',
+    3: 'Kemungkinan ada percekcokan dengan orang terdekat.',
+    4: 'Akan mendapat rezeki atau keuntungan.',
+    5: 'Akan mengalami kekecewaan atau kesedihan.',
+    6: 'Akan mendapat kabar dari tempat jauh.',
+    7: 'Akan mendapat hadiah atau kebahagiaan.',
+    8: 'Akan mendapat undangan dari kerabat/teman.',
+    9: 'Akan terhindar dari kesedihan.',
+    10: 'Akan mendapat surat atau kabar baik.',
+    11: 'Akan mendapat kesenangan dan rezeki.',
+    12: 'Akan bersedih atau bersusah hati.',
+    13: 'Terlepas dari beban pikiran atau hutang.',
+    14: 'Akan diundang atau mendapat tamu penting.',
+    15: 'Akan mendapat kabar yang mengejutkan.',
+    16: 'Akan mendapat bahaya, berhati-hatilah.',
+    17: 'Akan dibicarakan orang lain (gosip).',
+    18: 'Akan mendapat rintangan atau halangan.',
+    19: 'Akan difitnah oleh orang lain.',
+    20: 'Akan ada permusuhan atau konflik.',
+    21: 'Akan ada kerusuhan atau masalah besar.',
+    22: 'Akan mendapat kesenangan hati.',
+    23: 'Akan mendapat malu atau dipermalukan.',
+    24: 'Akan mendapat rezeki yang tak terduga.',
+    25: 'Akan mendapat uang atau hadiah.',
+    26: 'Akan mendapat pujian dari orang lain.',
+    27: 'Akan merasa lega dan tenang hati.',
+    28: 'Akan mendapat kesedihan.',
+    29: 'Akan pergi jalan-jalan atau merantau.',
+    30: 'Akan mendapat kebahagiaan yang besar.',
+    31: 'Akan mendapat kabar baik tak terduga.'
+  };
+  return map[tanggal] || 'Tanggal tidak valid.';
+}
+
+export function getFirasatHaidWaktu(jam: number) {
+  if (jam >= 6 && jam < 7) return 'Merasa curiga atau kurang percaya diri.';
+  if (jam >= 7 && jam < 8) return 'Merasakan kegembiraan dan kesenangan.';
+  if (jam >= 8 && jam < 9) return 'Merindukan keluarga atau teman dekat.';
+  if (jam >= 9 && jam < 10) return 'Mendapat janji manis atau perhatian spesial.';
+  if (jam >= 10 && jam < 11) return 'Merasa bahagia dan bersyukur.';
+  if (jam >= 11 && jam < 12) return 'Akan mendapat kesetiaan dari pasangan.';
+  if (jam >= 12 && jam < 13) return 'Hanya mengandalkan perasaan semata.';
+  if (jam >= 13 && jam < 14) return 'Tidak merasa kecewa, hati tenang.';
+  if (jam >= 14 && jam < 15) return 'Akan sedikit mengalami kekecewaan.';
+  if (jam >= 15 && jam < 16) return 'Menerima cinta dan kasih sayang yang tulus.';
+  if (jam >= 16 && jam < 17) return 'Akan mengalami perjuangan batin.';
+  if (jam >= 17 && jam < 18) return 'Cinta yang mulai tumbuh atau bersemi.';
+  if (jam >= 18 && jam < 19) return 'Merasa tidak puas dengan keadaan.';
+  if (jam >= 19 && jam < 20) return 'Kekecewaan karena harapan tidak sesuai kenyataan.';
+  if (jam >= 20 && jam < 21) return 'Ada keraguan atau bimbang di hati.';
+  if (jam >= 21 && jam < 22) return 'Merindukan seseorang yang jauh.';
+  if (jam >= 22 && jam < 23) return 'Akan mendapat pengalaman pahit.';
+  if (jam >= 23 && jam < 24) return 'Seseorang yang dipercaya mungkin ingkar janji.';
+  if (jam >= 0 && jam < 1) return 'Kasih sayang berbalas kasih sayang.';
+  if (jam >= 1 && jam < 2) return 'Akan berjumpa dengan kenalan lama.';
+  if (jam >= 2 && jam < 3) return 'Seseorang merindukan dan tidak bisa melupakanmu.';
+  if (jam >= 3 && jam < 4) return 'Ada seseorang yang akan menepati janji.';
+  if (jam >= 4 && jam < 5) return 'Perasaan cinta mulai sedikit berkurang.';
+  if (jam >= 5 && jam < 6) return 'Akan mendapat malu atau merasa bersalah.';
+  return 'Waktu tidak valid.';
+}
+
+export function getFirasatLindu(bulan: string, waktu: 'siang' | 'malam') {
+  const linduData: Record<string, { siang: string, malam: string }> = {
+    'Sura': { siang: 'Akan ada paceklik, penyakit mewabah, dan kesusahan.', malam: 'Akan ada kemakmuran, harga kebutuhan pokok murah.' },
+    'Sapar': { siang: 'Banyak orang pindah rumah atau berpindah tempat.', malam: 'Kehidupan makmur, tanaman tumbuh subur, banyak hewan ternak berkembang.' },
+    'Mulud': { siang: 'Akan ada berita buruk atau kekacauan di pemerintahan.', malam: 'Akan turun hujan deras, namun hasil panen melimpah dan aman.' },
+    'Bakda Mulud': { siang: 'Akan ada pertikaian antar saudara atau kerabat.', malam: 'Hujan akan berlimpah, panen berhasil dengan baik.' },
+    'Jumadil Awal': { siang: 'Keadaan tidak menentu, banyak fitnah dan kejahatan.', malam: 'Panen melimpah, kehidupan tenteram, dan bahagia.' },
+    'Jumadil Akhir': { siang: 'Banyak kemarau panjang, hasil panen kurang memuaskan.', malam: 'Aman dan tenteram, orang-orang saling tolong-menolong.' },
+    'Rejeb': { siang: 'Tanda ada orang besar atau tokoh penting yang wafat.', malam: 'Kebaikan akan datang, keberkahan bagi para pencari rezeki.' },
+    'Ruwah': { siang: 'Akan ada wabah penyakit yang menyerang manusia dan hewan.', malam: 'Negara aman, harga kebutuhan pokok murah, rakyat makmur.' },
+    'Pasa': { siang: 'Akan ada banyak pertikaian, keributan, atau peperangan.', malam: 'Orang-orang akan banyak berpindah tempat untuk mencari selamat.' },
+    'Sawal': { siang: 'Akan ada pergantian kepemimpinan atau kemarau panjang.', malam: 'Tanda keselamatan dan kemakmuran, penyakit menyingkir.' },
+    'Sela': { siang: 'Terdapat fitnah besar, kehidupan masyarakat sedikit resah.', malam: 'Kemakmuran akan segera datang, sandang pangan murah.' },
+    'Besar': { siang: 'Tanda akan ada bencana alam atau penyakit menular.', malam: 'Berkat melimpah, banyak keberuntungan, dan keselamatan.' }
+  };
+  return linduData[bulan]?.[waktu] || 'Bulan atau waktu tidak valid.';
+}
+
+export function getFirasatTelinga(bagian: 'kiri' | 'kanan', jam: number) {
+  if (jam >= 6 && jam < 7) return bagian === 'kiri' ? 'Akan ada tamu yang membawa kabar baik.' : 'Akan ada kesulitan atau kesusahan.';
+  if (jam >= 7 && jam < 8) return bagian === 'kiri' ? 'Akan melakukan perjalanan jauh.' : 'Akan mendapat gunjingan dari orang lain.';
+  if (jam >= 8 && jam < 9) return bagian === 'kiri' ? 'Akan ada sanak keluarga yang datang.' : 'Akan ada pertengkaran kecil.';
+  if (jam >= 9 && jam < 10) return bagian === 'kiri' ? 'Akan mendapat rezeki atau kesuksesan.' : 'Akan mendapat rintangan dalam pekerjaan.';
+  if (jam >= 10 && jam < 11) return bagian === 'kiri' ? 'Akan terhindar dari bahaya.' : 'Akan ada kabar kurang menyenangkan.';
+  if (jam >= 11 && jam < 12) return bagian === 'kiri' ? 'Akan bertemu teman lama.' : 'Akan mendapat surat atau pesan penting.';
+  if (jam >= 12 && jam < 13) return bagian === 'kiri' ? 'Akan mendapat rezeki halal.' : 'Akan kedatangan tamu penting.';
+  if (jam >= 13 && jam < 14) return bagian === 'kiri' ? 'Akan mendapat perbincangan baik.' : 'Akan ada undangan hajatan/makan.';
+  if (jam >= 14 && jam < 15) return bagian === 'kiri' ? 'Akan mendapat kemudahan.' : 'Akan mendapat keberuntungan besar.';
+  if (jam >= 15 && jam < 16) return bagian === 'kiri' ? 'Akan dibicarakan kebaikannya.' : 'Akan terhindar dari musibah.';
+  if (jam >= 16 && jam < 17) return bagian === 'kiri' ? 'Akan mendapat pekerjaan/rezeki.' : 'Akan mendapat pertolongan.';
+  if (jam >= 17 && jam < 18) return bagian === 'kiri' ? 'Akan mendapat keuntungan.' : 'Akan sukses dalam usaha.';
+  if (jam >= 18 && jam < 19) return bagian === 'kiri' ? 'Akan mendapat keselamatan.' : 'Akan mendapat pangkat/derajat.';
+  if (jam >= 19 && jam < 20) return bagian === 'kiri' ? 'Akan dicintai banyak orang.' : 'Akan mendapat kabar dari jauh.';
+  if (jam >= 20 && jam < 21) return bagian === 'kiri' ? 'Akan mendapat hal yang diinginkan.' : 'Akan mendapat kemuliaan.';
+  if (jam >= 21 && jam < 22) return bagian === 'kiri' ? 'Akan ada undangan pertemuan.' : 'Akan mendapat rezeki nomplok.';
+  if (jam >= 22 && jam < 23) return bagian === 'kiri' ? 'Akan terhindar dari masalah.' : 'Akan mendapat pujian.';
+  if (jam >= 23 && jam < 24) return bagian === 'kiri' ? 'Akan dimudahkan segala urusan.' : 'Akan mendapat kasih sayang.';
+  if (jam >= 0 && jam < 1) return bagian === 'kiri' ? 'Akan mendapat nasehat baik.' : 'Akan ada harapan yang terkabul.';
+  if (jam >= 1 && jam < 2) return bagian === 'kiri' ? 'Akan ada perselisihan yang selesai.' : 'Akan bertemu saudara/kerabat.';
+  if (jam >= 2 && jam < 3) return bagian === 'kiri' ? 'Akan mendapat pekerjaan.' : 'Akan selamat dari ancaman.';
+  if (jam >= 3 && jam < 4) return bagian === 'kiri' ? 'Akan ada niat baik terwujud.' : 'Akan mendapat petunjuk.';
+  if (jam >= 4 && jam < 5) return bagian === 'kiri' ? 'Akan mendapat rezeki.' : 'Akan bertemu orang baik.';
+  if (jam >= 5 && jam < 6) return bagian === 'kiri' ? 'Akan mendapat tamu.' : 'Akan dimudahkan jalan rezekinya.';
+  return 'Waktu tidak valid.';
+}

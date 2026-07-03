@@ -2,14 +2,16 @@ import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { SEO } from './components/SEO';
 import { Footer } from './components/Footer';
+import { AdSlot } from './components/AdSlot';
+import { SplashCurtain } from './components/SplashCurtain';
 import { 
   CalendarDays, BookOpen, MessageSquare, Quote, Heart,
-  Compass, Feather, Sun, Moon, Sparkles, LayoutGrid, CloudMoon, Zap, Info, Search, Eye, EyeOff, ArrowLeft
+  Compass, Feather, Sun, Moon, Sparkles, LayoutGrid, CloudMoon, Zap, Info, Search, Eye, EyeOff, ArrowLeft, HeartPulse, Activity, Volume2, Palette
 } from 'lucide-react';
 import { cn } from './lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 
-type Tab = 'calendar' | 'weton' | 'jodoh' | 'aksara' | 'ai' | 'kompas' | 'cerita' | 'rajah' | 'mimpi' | 'kedutan' | 'hilang' | 'katuranggan' | 'about' | 'privacy' | 'terms' | 'rejeki';
+type Tab = 'calendar' | 'weton' | 'jodoh' | 'aksara' | 'ai' | 'kompas' | 'cerita' | 'rajah' | 'mimpi' | 'kedutan' | 'hilang' | 'katuranggan' | 'about' | 'privacy' | 'terms' | 'rejeki' | 'halangan' | 'lindu' | 'telinga' | 'warnapasaran' | 'pasangiklan';
 
 // Lazy loading for optimization
 const Calendar = lazy(() => import('./components/Calendar').then(m => ({ default: m.Calendar })));
@@ -30,6 +32,11 @@ const Katuranggan = lazy(() => import('./components/Katuranggan').then(m => ({ d
 const ImageGenerator = lazy(() => import('./components/ImageGenerator').then(m => ({ default: m.ImageGenerator })));
 const WetonJodoh = lazy(() => import('./components/WetonJodoh').then(m => ({ default: m.WetonJodoh })));
 const ArahRejeki = lazy(() => import('./components/ArahRejeki').then(m => ({ default: m.ArahRejeki })));
+const PrimbonHalangan = lazy(() => import('./components/PrimbonHalangan').then(m => ({ default: m.PrimbonHalangan })));
+const PrimbonLindu = lazy(() => import('./components/PrimbonLindu').then(m => ({ default: m.PrimbonLindu })));
+const TelingaBerdenging = lazy(() => import('./components/TelingaBerdenging').then(m => ({ default: m.TelingaBerdenging })));
+const ArahWarnaPasaran = lazy(() => import('./components/ArahWarnaPasaran').then(m => ({ default: m.ArahWarnaPasaran })));
+const PasangIklan = lazy(() => import('./components/PasangIklan').then(m => ({ default: m.PasangIklan })));
 
 // Loading placeholder
 const NavLoading = () => (
@@ -77,6 +84,7 @@ function PrimbonApp() {
 
   return (
     <div className="min-h-[100dvh] flex flex-col font-sans w-full overflow-x-hidden relative bg-stone-50 dark:bg-stone-950 transition-colors">
+      <SplashCurtain />
       <SEO />
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         {[...Array(6)].map((_, i) => (
@@ -91,16 +99,75 @@ function PrimbonApp() {
         ))}
       </div>
 
-      <div className="relative z-10 flex-1 flex flex-col">
-        <header className="sticky top-0 z-40 bg-stone-100/90 dark:bg-stone-950/80 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 pt-4 pb-3 px-4 shadow-sm text-center transition-colors">
-           <h1 className="text-xl font-bold text-stone-900 dark:text-stone-100 tracking-tight flex justify-center items-center gap-2">
+      <div className="relative z-10 flex flex-col md:flex-row min-h-[100dvh]">
+        {/* MOBILE HEADER */}
+        <header className="md:hidden sticky top-0 z-40 bg-stone-100/90 dark:bg-stone-950/80 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 pt-4 pb-3 px-4 shadow-sm text-center transition-colors">
+           <h1 className="text-xl font-serif font-bold text-stone-900 dark:text-stone-100 tracking-tight flex justify-center items-center gap-2">
              <span className="text-gold-500 pt-1">❖</span>
-             Primbon & Kalender Jawa
+             Primbon & Kalender
              <span className="text-gold-500 pt-1">❖</span>
            </h1>
         </header>
+
+        {/* DESKTOP SIDEBAR */}
+        <aside className="hidden md:flex flex-col w-72 fixed inset-y-0 left-0 bg-stone-100/95 dark:bg-stone-950/95 backdrop-blur-2xl border-r border-stone-200 dark:border-stone-800 z-50 p-6 shadow-[4px_0_24px_rgba(0,0,0,0.02)] dark:shadow-[4px_0_24px_rgba(0,0,0,0.2)] overflow-y-auto transition-colors">
+          <div className="flex flex-col items-center mb-10 mt-4 text-center">
+            <h1 className="text-3xl font-serif font-black text-stone-900 dark:text-stone-100 tracking-tight leading-tight">
+              <span className="text-gold-500 block text-lg mb-2">❖</span>
+              Primbon Jawa
+            </h1>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400 font-bold mt-3">Warisan Leluhur</p>
+          </div>
+          
+          <div className="flex flex-col gap-1.5 flex-1">
+            {[
+              { id: 'calendar', label: 'Kalender Jawa', icon: CalendarDays },
+              { id: 'weton', label: 'Kalkulator Weton', icon: BookOpen },
+              { id: 'jodoh', label: 'Cek Jodoh', icon: Heart },
+              { id: 'mimpi', label: 'Tafsir Mimpi', icon: CloudMoon },
+              { id: 'rejeki', label: 'Arah Rejeki', icon: Compass },
+              { id: 'warnapasaran', label: 'Warna Pasaran', icon: Palette },
+              { id: 'halangan', label: 'Firasat Haid', icon: HeartPulse },
+              { id: 'lindu', label: 'Firasat Lindu', icon: Activity },
+              { id: 'telinga', label: 'Telinga Berdenging', icon: Volume2 },
+              { id: 'kedutan', label: 'Makna Kedutan', icon: Zap },
+              { id: 'cerita', label: 'Cerita Mistis', icon: Feather },
+              { id: 'aksara', label: 'Aksara Jawa', icon: Quote },
+              { id: 'rajah', label: 'Pustaka Rajah', icon: Sparkles },
+              { id: 'kompas', label: 'Kompas Arah', icon: Compass },
+              { id: 'hilang', label: 'Lacak Barang', icon: Search },
+              { id: 'katuranggan', label: 'Katuranggan', icon: Eye },
+              { id: 'about', label: 'Tentang Aplikasi', icon: Info },
+              { id: 'ai', label: 'Tanya Sesepuh AI', icon: MessageSquare, highlight: true },
+              { id: 'studio', label: 'AI Image Studio', icon: Zap, highlight: true },
+            ].map((item) => (
+              <button
+                key={item.id}
+                onClick={() => {
+                  if (item.id === 'studio') {
+                    navigate('/studio');
+                  } else {
+                    setActiveTab(item.id as Tab);
+                  }
+                }}
+                className={cn(
+                  "flex items-center gap-3 py-3 px-4 rounded-2xl transition-all border text-sm font-bold w-full text-left",
+                  activeTab === item.id 
+                    ? "bg-gold-500/10 dark:bg-gold-500/20 text-gold-600 dark:text-gold-400 border-gold-500/30 shadow-[inset_0_0_12px_rgba(212,163,115,0.05)]" 
+                    : item.highlight
+                      ? "bg-stone-900 dark:bg-gold-600 text-white border-transparent shadow-md hover:bg-stone-800 dark:hover:bg-gold-500"
+                      : "bg-transparent border-transparent text-stone-600 dark:text-stone-400 hover:bg-white/50 dark:hover:bg-stone-900/50 hover:border-stone-200 dark:hover:border-stone-800"
+                )}
+              >
+                <item.icon size={18} className={activeTab === item.id ? "text-gold-600 dark:text-gold-500" : (item.highlight ? "text-gold-300 dark:text-white" : "text-stone-400")} />
+                <span className={cn("tracking-wide", item.highlight && "uppercase tracking-widest text-xs")}>{item.label}</span>
+              </button>
+            ))}
+          </div>
+        </aside>
         
-        <nav className="sticky top-[60px] z-30 bg-stone-50/95 dark:bg-stone-950/95 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 transition-colors w-full">
+        {/* MOBILE SECONDARY NAV */}
+        <nav className="md:hidden sticky top-[60px] z-30 bg-stone-50/95 dark:bg-stone-950/95 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 transition-colors w-full">
           <div className="max-w-3xl mx-auto p-2 grid grid-cols-4 gap-1.5">
             {[
               { id: 'calendar', label: 'Kalender', icon: CalendarDays },
@@ -116,6 +183,10 @@ function PrimbonApp() {
               { id: 'ai', label: 'AI Sesepuh', icon: MessageSquare },
               { id: 'jodoh', label: 'Cek Jodoh', icon: Heart },
               { id: 'rejeki', label: 'Arah Rejeki', icon: Compass },
+              { id: 'warnapasaran', label: 'Warna Pasaran', icon: Palette },
+              { id: 'halangan', label: 'Haid', icon: HeartPulse },
+              { id: 'lindu', label: 'Lindu', icon: Activity },
+              { id: 'telinga', label: 'Telinga', icon: Volume2 },
               { id: 'studio', label: 'AI Studio', icon: Zap, highlight: true },
             ].filter(item => {
               // Daftar item yang sudah ada di bottom nav
@@ -147,7 +218,15 @@ function PrimbonApp() {
           </div>
         </nav>
 
-        <main className="flex-1 relative overflow-x-hidden flex flex-col pt-4 pb-20">
+        {/* Content Area */}
+        <div className="flex-1 overflow-x-hidden pt-20 md:pt-8 pb-24 md:pb-8 md:pl-72 w-full max-w-7xl mx-auto">
+          {/* POPUP AD (Runs its own 5s timer) */}
+          <AdSlot variant="popup" setActiveTab={setActiveTab} />
+
+          {/* TOP AD SLOT */}
+          <AdSlot variant="top" setActiveTab={setActiveTab} />
+          
+          <main className="flex-1 relative flex flex-col pt-4 pb-20 md:pb-8 md:pt-8 md:px-8 w-full">
           <AnimatePresence mode="wait">
             <Suspense fallback={<NavLoading />}>
               {activeTab === 'calendar' && (
@@ -212,37 +291,65 @@ function PrimbonApp() {
               )}
               {activeTab === 'rejeki' && (
                 <motion.div className="flex-1 flex flex-col" key="rejeki" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  <ArahRejeki />
+                  <ArahRejeki setActiveTab={setActiveTab} />
+                </motion.div>
+              )}
+              { activeTab === 'halangan' && (
+                <motion.div className="flex-1 flex flex-col" key="halangan" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <PrimbonHalangan setActiveTab={setActiveTab} />
+                </motion.div>
+              )}
+              {activeTab === 'lindu' && (
+                <motion.div className="flex-1 flex flex-col" key="lindu" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <PrimbonLindu setActiveTab={setActiveTab} />
+                </motion.div>
+              )}
+              {activeTab === 'telinga' && (
+                <motion.div className="flex-1 flex flex-col" key="telinga" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <TelingaBerdenging setActiveTab={setActiveTab} />
+                </motion.div>
+              )}
+              {activeTab === 'warnapasaran' && (
+                <motion.div className="flex-1 flex flex-col" key="warnapasaran" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <ArahWarnaPasaran setActiveTab={setActiveTab} />
                 </motion.div>
               )}
               {activeTab === 'about' && <About />}
               {activeTab === 'privacy' && <PrivacyPolicy />}
               {activeTab === 'terms' && <TermsOfService />}
+              {activeTab === 'pasangiklan' && (
+                <motion.div className="flex-1 flex flex-col" key="pasangiklan" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <PasangIklan />
+                </motion.div>
+              )}
             </Suspense>
           </AnimatePresence>
+          <AdSlot setActiveTab={setActiveTab} />
           <Footer 
             setTab={setActiveTab} 
             isDarkMode={isDarkMode} 
             setIsDarkMode={setIsDarkMode} 
           />
         </main>
-
-        <div className="fixed bottom-0 left-0 right-0 bg-stone-50/90 dark:bg-stone-950/90 backdrop-blur-md border-t border-stone-200 dark:border-stone-800 pb-[env(safe-area-inset-bottom)] z-50 transition-colors">
-            <div className="max-w-md mx-auto px-2 sm:px-6 h-16 flex justify-between items-center bg-transparent">
-              {[
-                { id: 'calendar', label: 'Kalender', icon: CalendarDays },
-                { id: 'weton', label: 'Wetonku', icon: BookOpen },
-                { id: 'jodoh', label: 'Jodoh', icon: Heart },
-                { id: 'mimpi', label: 'Mimpi', icon: CloudMoon },
-                { id: 'ai', label: 'AI Sesepuh', icon: MessageSquare },
-              ].map((item) => (
-                <button key={item.id} onClick={() => setActiveTab(item.id as Tab)} className={cn("flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors px-1", activeTab === item.id ? "text-gold-500" : "text-stone-500 hover:text-stone-800 dark:hover:text-stone-300")}>
-                  <item.icon size={18} className={activeTab === item.id ? "drop-shadow-[0_0_8px_rgba(212,163,115,0.4)]" : ""} />
-                  <span className="text-[9px] font-medium tracking-wide">{item.label}</span>
-                </button>
-              ))}
-            </div>
+        
+        {/* MOBILE BOTTOM NAV */}
+        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-stone-50/90 dark:bg-stone-950/90 backdrop-blur-md border-t border-stone-200 dark:border-stone-800 pb-[env(safe-area-inset-bottom)] z-50 transition-colors">
+          <div className="max-w-md mx-auto px-2 sm:px-6 h-16 flex justify-between items-center bg-transparent">
+            {[
+              { id: 'calendar', label: 'Kalender', icon: CalendarDays },
+              { id: 'weton', label: 'Wetonku', icon: BookOpen },
+              { id: 'jodoh', label: 'Jodoh', icon: Heart },
+              { id: 'mimpi', label: 'Mimpi', icon: CloudMoon },
+              { id: 'ai', label: 'AI Sesepuh', icon: MessageSquare },
+            ].map((item) => (
+              <button key={item.id} onClick={() => setActiveTab(item.id as Tab)} className={cn("flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors px-1", activeTab === item.id ? "text-gold-500" : "text-stone-500 hover:text-stone-800 dark:hover:text-stone-300")}>
+                <item.icon size={18} className={activeTab === item.id ? "drop-shadow-[0_0_8px_rgba(212,163,115,0.4)]" : ""} />
+                <span className="text-[9px] font-medium tracking-wide">{item.label}</span>
+              </button>
+            ))}
           </div>
+          </div>
+        </div>
       </div>
     </div>
   );

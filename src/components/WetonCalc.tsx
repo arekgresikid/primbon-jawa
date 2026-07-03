@@ -578,9 +578,9 @@ export function WetonCalc() {
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto pb-32 px-4 sm:px-6 pt-6 sm:pt-10">
+    <div className="w-full max-w-4xl mx-auto pb-32 px-4 sm:px-6 pt-6 sm:pt-10">
        <div className="mb-8 text-center space-y-2">
-         <h2 className="text-3xl font-bold text-stone-900 dark:text-stone-100 flex items-center justify-center gap-3">
+         <h2 className="text-3xl font-serif font-bold text-stone-900 dark:text-stone-100 flex items-center justify-center gap-3">
            <Search size={28} className="text-gold-500" />
            Cek Weton & Primbon
          </h2>
