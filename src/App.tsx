@@ -6,7 +6,7 @@ import { AdSlot } from './components/AdSlot';
 import { SplashCurtain } from './components/SplashCurtain';
 import { 
   CalendarDays, BookOpen, MessageSquare, Quote, Heart,
-  Compass, Feather, Sun, Moon, Sparkles, LayoutGrid, CloudMoon, Zap, Info, Search, Eye, EyeOff, ArrowLeft, HeartPulse, Activity, Volume2, Palette
+  Compass, Feather, Sun, Moon, Sparkles, LayoutGrid, CloudMoon, Zap, Info, Search, Eye, EyeOff, ArrowLeft, HeartPulse, Activity, Volume2, Palette, Megaphone
 } from 'lucide-react';
 import { cn } from './lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
@@ -138,6 +138,7 @@ function PrimbonApp() {
               { id: 'hilang', label: 'Lacak Barang', icon: Search },
               { id: 'katuranggan', label: 'Katuranggan', icon: Eye },
               { id: 'about', label: 'Tentang Aplikasi', icon: Info },
+              { id: 'pasangiklan', label: 'Pasang Iklan', icon: Megaphone },
               { id: 'ai', label: 'Tanya Sesepuh AI', icon: MessageSquare, highlight: true },
               { id: 'studio', label: 'AI Image Studio', icon: Zap, highlight: true },
             ].map((item) => (
@@ -187,6 +188,7 @@ function PrimbonApp() {
               { id: 'halangan', label: 'Haid', icon: HeartPulse },
               { id: 'lindu', label: 'Lindu', icon: Activity },
               { id: 'telinga', label: 'Telinga', icon: Volume2 },
+              { id: 'pasangiklan', label: 'Pasang Iklan', icon: Megaphone },
               { id: 'studio', label: 'AI Studio', icon: Zap, highlight: true },
             ].filter(item => {
               // Daftar item yang sudah ada di bottom nav
