@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Megaphone, Star, Handshake, CheckCircle2, ChevronRight, LayoutTemplate, ArrowUpToLine, PanelLeft, ArrowDownToLine, PictureInPicture2, X, Eye } from 'lucide-react';
 
-const WA_NUMBER = "6281234567890"; // Ganti dengan nomor WhatsApp yang benar
+const WA_NUMBER = "6281330763633"; // Nomor Admin
 const WA_MESSAGE = encodeURIComponent("Halo Admin Primbon Jawa, saya tertarik untuk berdiskusi mengenai pemasangan iklan di aplikasi/website Primbon Jawa.");
 const WA_LINK = `https://wa.me/${WA_NUMBER}?text=${WA_MESSAGE}`;
 
